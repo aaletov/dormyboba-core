@@ -306,10 +306,10 @@ class DormybobaCoreServicer(apiv1grpc.DormybobaCoreServicer):
 
         return apiv1.AssignDefectResponse(admin_user.user_id)
     
-def serve(session: Session):
+def serve(session: Session, worksheet: Worksheet):
     server = grpc.server(futures.ThreadPoolExecutor(max_workers=10))
     apiv1grpc.add_DormybobaCoreServicer_to_server(
-        DormybobaCoreServicer(session), server
+        DormybobaCoreServicer(session, worksheet), server
     )
     logging.info("Starting server...")
     server.add_insecure_port("[::]:50051")
