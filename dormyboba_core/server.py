@@ -80,7 +80,41 @@ class DormybobaCoreServicer(apiv1grpc.DormybobaCoreServicer):
         )
         self.session.execute(stmt)
         self.session.commit()
-    
+
+    def GetUserById(
+        self,
+        request: apiv1.GetUserByIdRequest,
+        context: grpc.ServicerContext,
+    ):
+        stmt = select(DormybobaUser).where(DormybobaUser.user_id == request.user_id)
+        res = self.session.execute(stmt).first()
+
+        if res is None:
+            return apiv1.GetUserByIdResponse()
+        
+        user: DormybobaUser = res[0]
+
+        return apiv1.GetUserByIdResponse(
+            apiv1.DormybobaUser(
+                user_id=user.user_id,
+                institute=apiv1.Institute(
+                    institute_id=user.institute.institute_id,
+                    intitute_name=user.institute.institute_name,
+                ),
+                role=apiv1.DormybobaRole(
+                    role_id=user.role.role_id,
+                    role_name=user.role.role_name,
+                ),
+                academic_type=apiv1.AcademicType(
+                    type_id=user.academic_type.type_id,
+                    type_name=user.academic_type.type_name,
+                ),
+                year=user.year,
+                group=user.group,
+            )
+        )
+
+
     def GetAllInstitutes(
         self,
         request: None,

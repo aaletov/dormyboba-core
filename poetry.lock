@@ -145,7 +145,7 @@ develop = false
 type = "git"
 url = "https://github.com/aaletov/dormyboba-api.git"
 reference = "5-fix-2-sheet-manipulation-not-in-spec"
-resolved_reference = "d5c9d1a701cfe1052f8e8925321a5236188b53fd"
+resolved_reference = "86a1d5c7224cb7ba9a27df140958cbb8c54de6bc"
 subdirectory = "api/generated/python"
 
 [[package]]
