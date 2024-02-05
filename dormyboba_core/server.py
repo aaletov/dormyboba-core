@@ -297,6 +297,39 @@ class DormybobaCoreServicer(apiv1grpc.DormybobaCoreServicer):
 
         self.worksheet.update_cells(irange)
 
+    DEFECT_TYPE_MAP = {
+        "Электрика": apiv1.ELECTRICITY,
+        "Сантехника": apiv1.PLUMB,
+        "Общее": apiv1.COMMON,
+    }
+
+    DEFECT_STATUS_MAP = {
+        "Добавлено": apiv1.CREATED,
+        "Принято": apiv1.ACCEPTED,
+        "Решено": apiv1.RESOLVED,
+    }
+
+    def GetDefectById(
+        self,
+        request: apiv1.GetDefectByIdRequest,
+        context: grpc.ServicerContext,
+    ):
+        column = self.worksheet.col_values(1)
+        if request.defect.defect_id not in column:
+            return apiv1.GetDefectByIdResponse(None)
+
+        i = column.index(request.defect.defect_id) + 1
+        irange: List[Cell] = self.worksheet.range(i, 2, i+4, 5)
+        return apiv1.GetDefectByIdResponse(
+            apiv1.Defect(
+                defect_id=irange[0].value,
+                user_id=irange[1].value,
+                defect_type=self.DEFECT_TYPE_MAP[irange[2].value],
+                description=irange[3].value,
+                defect_status=self.DEFECT_STATUS_MAP[irange[4].value],
+            ),
+        )
+
     def UpdateDefect(
         self,
         request: apiv1.UpdateDefectRequest,
