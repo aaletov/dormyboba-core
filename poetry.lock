@@ -144,8 +144,8 @@ develop = false
 [package.source]
 type = "git"
 url = "https://github.com/aaletov/dormyboba-api.git"
-reference = "5-fix-2-sheet-manipulation-not-in-spec"
-resolved_reference = "bc7d5d03ff120823fb552dfba645443d2104147a"
+reference = "6-fix-3-mailing-and-queue-events-not-in-spec"
+resolved_reference = "ce2d9bfffffaad009bba263ae7e6ca14c2036bfa"
 subdirectory = "api/generated/python"
 
 [[package]]
@@ -977,4 +977,4 @@ zstd = ["zstandard (>=0.18.0)"]
 [metadata]
 lock-version = "2.0"
 python-versions = ">=3.11,<4.0"
-content-hash = "efb9b2f93ff9afc755b63f717cf53e686568ed12356841b427610ea7bcf117ed"
+content-hash = "2fda6c56da2c61024fff24e7857412408d35edcc557f5aea9081a78da8ea869d"

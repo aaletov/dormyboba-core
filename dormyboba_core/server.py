@@ -1,11 +1,11 @@
-from typing import Callable, List
+from typing import Callable, List, Any
 import random
 from concurrent import futures
 import logging
 from datetime import datetime
 import grpc
 from sqlalchemy.orm import Session
-from sqlalchemy import insert, select, update, delete, and_
+from sqlalchemy import insert, select, update, delete, and_, or_
 from gspread import Cell, Worksheet
 import dormyboba_api.v1api_pb2 as apiv1
 import dormyboba_api.v1api_pb2_grpc as apiv1grpc
@@ -372,7 +372,157 @@ class DormybobaCoreServicer(apiv1grpc.DormybobaCoreServicer):
         admin_user: DormybobaUser = res[0]
 
         return apiv1.AssignDefectResponse(admin_user.user_id)
-    
+
+    def _build_api_mailing_event(
+        self,
+        mailing: Mailing,
+        users: List[DormybobaUser],
+    ) -> apiv1.MailingEvent:
+        api_mailing = apiv1.Mailing(
+            theme=mailing.theme,
+            mailing_text=mailing.mailing_text,
+            at=mailing.at,
+            institute_id=mailing.institute_id,
+            academic_type_id=mailing.academic_type_id,
+            year=mailing.year,
+        )
+        api_users = []
+        for user in users:
+            condition = (
+                ((mailing.academic_type_id is None) or
+                    (mailing.academic_type_id == user.academic_type_id)) and
+                ((mailing.institute_id is None) or
+                    (mailing.institute_id == user.institute_id)) and
+                ((mailing.year is None) or
+                    (mailing.year == user.year))
+            )
+            if condition:
+                api_institute = apiv1.Institute(
+                    institute_id=user.institute.institute_id,
+                    institute_name=user.institute.institute_name,
+                )
+                api_academic_type = apiv1.AcademicType(
+                    type_id=user.academic_type.type_id,
+                    type_name=user.academic_type.type_name,
+                )
+                api_users.append(apiv1.DormybobaUser(
+                    user_id=user.user_id,
+                    institute=api_institute,
+                    academic_type=api_academic_type,
+                    year=user.year,
+                    group=user.group,
+                ))
+        return apiv1.MailingEvent(
+            mailing=api_mailing,
+            users=api_users,
+        )
+
+    def MailingEvent(
+        self,
+        request: Any,
+        context: grpc.ServicerContext,
+    ):
+        try:
+            stmt = select(Mailing).where(
+                or_(
+                    Mailing.at == None,
+                    datetime.now() > Mailing.at
+                )
+            )
+            mailings = self.session.execute(stmt).all()
+            # Only registered
+            stmt = select(DormybobaUser).where(
+                and_(
+                    DormybobaUser.institute_id != None,
+                    DormybobaUser.academic_type_id != None,
+                    DormybobaUser.year != None,
+                )
+            )
+            res = self.session.execute(stmt).all()
+            users = list([row[0] for row in res])
+            events = []
+            for row in mailings:
+                mailing: Mailing = row[0]
+                event = self._build_api_mailing_event(mailing, users)
+                events.append(event)
+
+                stmt = delete(Mailing).where(Mailing.mailing_id == mailing.mailing_id)
+                self.session.execute(stmt)
+                self.session.commit()
+        except Exception as exc:
+            print(exc)
+        return apiv1.MailingEventResponse(events=events)
+        
+
+    def _build_api_queue_event(
+        self,
+        queue: Queue,
+        users: List[DormybobaUser],
+    ) -> apiv1.QueueEvent:
+        api_queue = apiv1.Queue(
+            title=queue.title,
+            descritpion=queue.description,
+            open=queue.open,
+            close=queue.close,
+        )
+
+        api_users = []
+        for row in users:
+            user: DormybobaUser = row[0]
+            api_institute = apiv1.Institute(
+                institute_id=user.institute.institute_id,
+                institute_name=user.institute.institute_name,
+            )
+            api_academic_type = apiv1.AcademicType(
+                type_id=user.academic_type.type_id,
+                type_name=user.academic_type.type_name,
+            )
+            api_users.append(apiv1.DormybobaUser(
+                user_id=user.user_id,
+                institute=api_institute,
+                academic_type=api_academic_type,
+                year=user.year,
+                group=user.group,
+            ))
+
+        return apiv1.QueueEvent(
+            queue=api_queue,
+            users=api_users,
+        )
+
+    def QueueEvent(
+        self,
+        request: Any,
+        context: grpc.ServicerContext,
+    ):
+        events = []
+        try:
+            stmt = select(Queue).where(
+                and_(
+                    datetime.now() > Queue.open,
+                    Queue.is_opened == False,
+                )
+            )
+            queues = self.session.execute(stmt).all()
+            stmt = select(DormybobaUser)
+            res = self.session.execute(stmt).all()
+            users = list([row[0] for row in res])
+
+            for row in queues:
+                queue: Queue = row[0]
+                event = self._build_api_queue_event(queue, users)
+                events.append(event)
+
+                stmt = update(Queue).where(Queue.queue_id == queue.queue_id).values(
+                    is_opened = True,
+                )
+                self.session.execute(stmt)
+                self.session.commit()
+
+        except Exception as exc:
+            print(exc)
+        return apiv1.QueueEventResponse(events)
+
 def serve(session: Session, worksheet: Worksheet):
     server = grpc.server(futures.ThreadPoolExecutor(max_workers=10))
     apiv1grpc.add_DormybobaCoreServicer_to_server(
