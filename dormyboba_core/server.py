@@ -460,6 +460,7 @@ class DormybobaCoreServicer(apiv1grpc.DormybobaCoreServicer):
         users: List[DormybobaUser],
     ) -> apiv1.QueueEvent:
         api_queue = apiv1.Queue(
+            queue_id=queue.queue_id,
             title=queue.title,
             descritpion=queue.description,
             open=queue.open,
