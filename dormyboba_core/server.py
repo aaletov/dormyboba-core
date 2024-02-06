@@ -4,6 +4,7 @@ from concurrent import futures
 import logging
 from datetime import datetime
 import grpc
+from google.protobuf.empty_pb2 import Empty
 from sqlalchemy.orm import Session
 from sqlalchemy import insert, select, update, delete, and_, or_
 from gspread import Cell, Worksheet
@@ -80,6 +81,7 @@ class DormybobaCoreServicer(apiv1grpc.DormybobaCoreServicer):
         )
         self.session.execute(stmt)
         self.session.commit()
+        return Empty()
 
     def GetUserById(
         self,
@@ -179,6 +181,7 @@ class DormybobaCoreServicer(apiv1grpc.DormybobaCoreServicer):
         )
         self.session.execute(stmt)
         self.session.commit()
+        return Empty()
 
     def CreateQueue(
         self,
@@ -193,6 +196,7 @@ class DormybobaCoreServicer(apiv1grpc.DormybobaCoreServicer):
         )
         self.session.execute(stmt)
         self.session.commit()
+        return Empty()
     
     def AddPersonToQueue(
         self,
@@ -239,6 +243,7 @@ class DormybobaCoreServicer(apiv1grpc.DormybobaCoreServicer):
         )
         self.session.execute(stmt)
         self.session.commit()
+        return Empty()
     
     def PersonCompleteQueue(
         self,
@@ -296,6 +301,7 @@ class DormybobaCoreServicer(apiv1grpc.DormybobaCoreServicer):
             cell.value = value
 
         self.worksheet.update_cells(irange)
+        return Empty()
 
     DEFECT_TYPE_MAP = {
         "Электрика": apiv1.ELECTRICITY,
@@ -353,6 +359,7 @@ class DormybobaCoreServicer(apiv1grpc.DormybobaCoreServicer):
             cell.value = value
 
         self.worksheet.update_cells(irange)
+        return Empty()
     
     def AssignDefect(
         self,
