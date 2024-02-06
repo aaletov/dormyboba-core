@@ -8,7 +8,7 @@ readme = "README.md"
 
 [tool.poetry.dependencies]
 python = ">=3.11,<4.0"
-dormyboba-api = {git = "https://github.com/aaletov/dormyboba-api.git", rev = "6-fix-3-mailing-and-queue-events-not-in-spec", subdirectory = "api/generated/python"}
+dormyboba-api = {git = "https://github.com/aaletov/dormyboba-api.git", rev = "main", subdirectory = "api/generated/python"}
 sqlacodegen = "3.0.0rc3"
 psycopg2-binary = "^2.9.9"
 pyyaml = "^6.0.1"
