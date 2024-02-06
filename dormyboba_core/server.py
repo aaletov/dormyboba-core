@@ -42,7 +42,7 @@ class DormybobaCoreServicer(apiv1grpc.DormybobaCoreServicer):
         self.session.execute(stmt)
         self.session.commit()
 
-        return apiv1.GenerateVerificationCodeResponse(code)
+        return apiv1.GenerateVerificationCodeResponse(verification_code=code)
     
     def GetRoleByVerificationCode(
         self,
@@ -58,7 +58,7 @@ class DormybobaCoreServicer(apiv1grpc.DormybobaCoreServicer):
             role_id=role.role_id,
             role_name=role.role_name,
         )
-        return apiv1.GetRoleByVerificationCodeResponse(api_role)
+        return apiv1.GetRoleByVerificationCodeResponse(role=api_role)
 
     def CreateUser(
         self,
@@ -95,11 +95,11 @@ class DormybobaCoreServicer(apiv1grpc.DormybobaCoreServicer):
         user: DormybobaUser = res[0]
 
         return apiv1.GetUserByIdResponse(
-            apiv1.DormybobaUser(
+            user=apiv1.DormybobaUser(
                 user_id=user.user_id,
                 institute=apiv1.Institute(
                     institute_id=user.institute.institute_id,
-                    intitute_name=user.institute.institute_name,
+                    institute_name=user.institute.institute_name,
                 ),
                 role=apiv1.DormybobaRole(
                     role_id=user.role.role_id,
@@ -111,7 +111,7 @@ class DormybobaCoreServicer(apiv1grpc.DormybobaCoreServicer):
                 ),
                 year=user.year,
                 group=user.group,
-            )
+            ),
         )
 
 
@@ -130,7 +130,7 @@ class DormybobaCoreServicer(apiv1grpc.DormybobaCoreServicer):
                 institute_name=institute.institute_name,
             )
             api_institutes.append(api_institute)
-        return apiv1.GetAllInstitutesResponse(api_institutes)
+        return apiv1.GetAllInstitutesResponse(institutes=api_institutes)
 
     def GetInstituteByName(
         self,
@@ -146,7 +146,7 @@ class DormybobaCoreServicer(apiv1grpc.DormybobaCoreServicer):
             institute_id=institute.institute_id,
             institute_name=institute.institute_name,
         )
-        return apiv1.GetInstituteByNameResponse(api_institute)
+        return apiv1.GetInstituteByNameResponse(institute=api_institute)
     
     def GetAcademicTypeByName(
         self,
@@ -162,7 +162,7 @@ class DormybobaCoreServicer(apiv1grpc.DormybobaCoreServicer):
             type_id=academic_type.type_id,
             type_name=academic_type.type_name,
         )
-        return apiv1.GetAcademicTypeByNameResponse(api_academic_type)
+        return apiv1.GetAcademicTypeByNameResponse(academic_type=api_academic_type)
     
     def CreateMailing(
         self,
@@ -223,7 +223,7 @@ class DormybobaCoreServicer(apiv1grpc.DormybobaCoreServicer):
 
         self.session.execute(stmt)
         self.session.commit()
-        return apiv1.AddPersonToQueueResponse(is_active)
+        return apiv1.AddPersonToQueueResponse(is_active=is_active)
     
     def RemovePersonFromQueue(
         self,
@@ -316,12 +316,12 @@ class DormybobaCoreServicer(apiv1grpc.DormybobaCoreServicer):
     ):
         column = self.worksheet.col_values(1)
         if request.defect.defect_id not in column:
-            return apiv1.GetDefectByIdResponse(None)
+            return apiv1.GetDefectByIdResponse()
 
         i = column.index(request.defect.defect_id) + 1
         irange: List[Cell] = self.worksheet.range(i, 2, i+4, 5)
         return apiv1.GetDefectByIdResponse(
-            apiv1.Defect(
+            defect=apiv1.Defect(
                 defect_id=irange[0].value,
                 user_id=irange[1].value,
                 defect_type=self.DEFECT_TYPE_MAP[irange[2].value],
@@ -371,7 +371,7 @@ class DormybobaCoreServicer(apiv1grpc.DormybobaCoreServicer):
 
         admin_user: DormybobaUser = res[0]
 
-        return apiv1.AssignDefectResponse(admin_user.user_id)
+        return apiv1.AssignDefectResponse(assigned_user_id=admin_user.user_id)
 
     def _build_api_mailing_event(
         self,
@@ -422,6 +422,7 @@ class DormybobaCoreServicer(apiv1grpc.DormybobaCoreServicer):
         request: Any,
         context: grpc.ServicerContext,
     ):
+        events = []
         try:
             stmt = select(Mailing).where(
                 or_(
@@ -440,7 +441,6 @@ class DormybobaCoreServicer(apiv1grpc.DormybobaCoreServicer):
             )
             res = self.session.execute(stmt).all()
             users = list([row[0] for row in res])
-            events = []
             for row in mailings:
                 mailing: Mailing = row[0]
                 event = self._build_api_mailing_event(mailing, users)
@@ -451,7 +451,7 @@ class DormybobaCoreServicer(apiv1grpc.DormybobaCoreServicer):
                 self.session.commit()
         except Exception as exc:
             print(exc)
-        return apiv1.MailingEventResponse(events=events)
+        yield apiv1.MailingEventResponse(events=events)
         
 
     def _build_api_queue_event(
@@ -522,7 +522,7 @@ class DormybobaCoreServicer(apiv1grpc.DormybobaCoreServicer):
 
         except Exception as exc:
             print(exc)
-        return apiv1.QueueEventResponse(events)
+        yield apiv1.QueueEventResponse(events=events)
 
 def serve(session: Session, worksheet: Worksheet):
     server = grpc.server(futures.ThreadPoolExecutor(max_workers=10))
