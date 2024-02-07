@@ -1,10 +1,11 @@
-from typing import Callable, List, Any
+from typing import Callable, List, Any, Optional
 import random
 from concurrent import futures
 import logging
 from datetime import datetime
 import grpc
 from google.protobuf.empty_pb2 import Empty
+from google.protobuf.timestamp_pb2 import Timestamp
 from sqlalchemy.orm import Session
 from sqlalchemy import insert, select, update, delete, and_, or_
 from gspread import Cell, Worksheet
@@ -27,6 +28,10 @@ class DormybobaCoreServicer(apiv1grpc.DormybobaCoreServicer):
     def __init__(self, session: Session, worksheet: Worksheet):
         self.session = session        
         self.worksheet = worksheet
+
+    @staticmethod
+    def nullifier(message: Any, field_name: str) -> Optional[Any]:
+        return None if not(message.HasField(field_name)) else getattr(message, field_name)
 
     def GenerateVerificationCode(
             self,
@@ -171,12 +176,13 @@ class DormybobaCoreServicer(apiv1grpc.DormybobaCoreServicer):
         request: apiv1.CreateMailingRequest,
         context: grpc.ServicerContext,
     ):
+        at = None if request.HasField("at") else request.at.ToDatetime()
         stmt = insert(Mailing).values(
-            institute_id=request.institute_id,
-            academic_type_id=request.academic_type_id,
-            year=request.year,
-            at=request.at,
-            theme=request.theme,
+            institute_id=self.nullifier(request, "institute_id"),
+            academic_type_id=self.nullifier(request, "academic_type_id"),
+            year=self.nullifier(request, "year"),
+            at=at,
+            theme=self.nullifier(request, "theme"),
             mailing_text=request.mailing_text,
         )
         self.session.execute(stmt)
@@ -188,11 +194,13 @@ class DormybobaCoreServicer(apiv1grpc.DormybobaCoreServicer):
         request: apiv1.CreateQueueRequest,
         context: grpc.ServicerContext,
     ):
+        open = None if request.HasField("open") else request.open.ToDatetime()
+        close = None if request.HasField("open") else request.close.ToDatetime()
         stmt = insert(Queue).values(
             title=request.title,
-            description=request.description,
-            open=request.open,
-            close=request.close,
+            description=self.nullifier(request, "description"),
+            open=open,
+            close=close,
         )
         self.session.execute(stmt)
         self.session.commit()
@@ -279,6 +287,22 @@ class DormybobaCoreServicer(apiv1grpc.DormybobaCoreServicer):
             active_user_id=active_user_id,
         )
     
+    DEFECT_TYPE_MAP = {
+        "Электрика": apiv1.ELECTRICITY,
+        "Сантехника": apiv1.PLUMB,
+        "Общее": apiv1.COMMON,
+    }
+
+    REV_DEFECT_TYPE_MAP = {v: k for k, v in DEFECT_TYPE_MAP.items()}
+
+    DEFECT_STATUS_MAP = {
+        "Добавлено": apiv1.CREATED,
+        "Принято": apiv1.ACCEPTED,
+        "Решено": apiv1.RESOLVED,
+    }
+
+    REV_DEFECT_STATUS_MAP = {v: k for k, v in DEFECT_STATUS_MAP.items()}
+    
     def CreateDefect(
         self,
         request: apiv1.CreateDefectRequest,
@@ -292,28 +316,25 @@ class DormybobaCoreServicer(apiv1grpc.DormybobaCoreServicer):
         defect_id = "DD" + str(random.randint(1000, 9999))
         values = (
             defect_id,
-            request.defect.user_id,
-            request.defect.defect_type,
-            request.defect.description,
-            request.defect.defect_status
+            request.user_id,
+            self.REV_DEFECT_TYPE_MAP[request.defect_type],
+            request.description,
+            self.REV_DEFECT_STATUS_MAP[request.defect_status],
         )
         for cell, value in zip(irange, values):
             cell.value = value
 
         self.worksheet.update_cells(irange)
-        return Empty()
 
-    DEFECT_TYPE_MAP = {
-        "Электрика": apiv1.ELECTRICITY,
-        "Сантехника": apiv1.PLUMB,
-        "Общее": apiv1.COMMON,
-    }
-
-    DEFECT_STATUS_MAP = {
-        "Добавлено": apiv1.CREATED,
-        "Принято": apiv1.ACCEPTED,
-        "Решено": apiv1.RESOLVED,
-    }
+        return apiv1.CreateDefectResponse(
+            defect=apiv1.Defect(
+                defect_id=defect_id,
+                user_id=request.user_id,
+                defect_type=request.defect_type,
+                description=request.description,
+                defect_status=request.defect_status,
+            ),
+        )
 
     def GetDefectById(
         self,
@@ -321,15 +342,15 @@ class DormybobaCoreServicer(apiv1grpc.DormybobaCoreServicer):
         context: grpc.ServicerContext,
     ):
         column = self.worksheet.col_values(1)
-        if request.defect.defect_id not in column:
+        if request.defect_id not in column:
             return apiv1.GetDefectByIdResponse()
 
-        i = column.index(request.defect.defect_id) + 1
-        irange: List[Cell] = self.worksheet.range(i, 2, i+4, 5)
+        i = column.index(request.defect_id) + 1
+        irange: List[Cell] = self.worksheet.range(i, 1, i+4, 5)
         return apiv1.GetDefectByIdResponse(
             defect=apiv1.Defect(
                 defect_id=irange[0].value,
-                user_id=irange[1].value,
+                user_id=int(irange[1].value),
                 defect_type=self.DEFECT_TYPE_MAP[irange[2].value],
                 description=irange[3].value,
                 defect_status=self.DEFECT_STATUS_MAP[irange[4].value],
@@ -350,9 +371,9 @@ class DormybobaCoreServicer(apiv1grpc.DormybobaCoreServicer):
 
         values = (
             request.defect.user_id,
-            request.defect.defect_type,
+            self.REV_DEFECT_TYPE_MAP[request.defect.defect_type],
             request.defect.description,
-            request.defect.defect_status
+            self.REV_DEFECT_STATUS_MAP[request.defect.defect_status],
         )
 
         for cell, value in zip(irange, values):
@@ -385,10 +406,11 @@ class DormybobaCoreServicer(apiv1grpc.DormybobaCoreServicer):
         mailing: Mailing,
         users: List[DormybobaUser],
     ) -> apiv1.MailingEvent:
+        at = None if mailing.at is None else Timestamp.FromDatetime(mailing.at)
         api_mailing = apiv1.Mailing(
             theme=mailing.theme,
             mailing_text=mailing.mailing_text,
-            at=mailing.at,
+            at=at,
             institute_id=mailing.institute_id,
             academic_type_id=mailing.academic_type_id,
             year=mailing.year,
@@ -457,7 +479,7 @@ class DormybobaCoreServicer(apiv1grpc.DormybobaCoreServicer):
                 self.session.execute(stmt)
                 self.session.commit()
         except Exception as exc:
-            print(exc)
+            logging.exception(exc)
         yield apiv1.MailingEventResponse(events=events)
         
 
@@ -466,12 +488,15 @@ class DormybobaCoreServicer(apiv1grpc.DormybobaCoreServicer):
         queue: Queue,
         users: List[DormybobaUser],
     ) -> apiv1.QueueEvent:
+        open = None if queue.open is None else Timestamp.FromDatetime(queue.open)
+        close = None if queue.close is None else Timestamp.FromDatetime(queue.close)
+        
         api_queue = apiv1.Queue(
             queue_id=queue.queue_id,
             title=queue.title,
             descritpion=queue.description,
-            open=queue.open,
-            close=queue.close,
+            open=open,
+            close=close,
         )
 
         api_users = []
@@ -526,9 +551,8 @@ class DormybobaCoreServicer(apiv1grpc.DormybobaCoreServicer):
                 )
                 self.session.execute(stmt)
                 self.session.commit()
-
         except Exception as exc:
-            print(exc)
+            logging.exception(exc)
         yield apiv1.QueueEventResponse(events=events)
 
 def serve(session: Session, worksheet: Worksheet):
