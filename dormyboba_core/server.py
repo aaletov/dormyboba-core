@@ -7,7 +7,15 @@ import grpc
 from google.protobuf.empty_pb2 import Empty
 from google.protobuf.timestamp_pb2 import Timestamp
 from sqlalchemy.orm import Session
-from sqlalchemy import insert, select, update, delete, and_, or_
+from sqlalchemy import (
+    Engine,
+    insert,
+    select,
+    update,
+    delete,
+    and_,
+    or_,
+)
 from gspread import Cell, Worksheet
 import dormyboba_api.v1api_pb2 as apiv1
 import dormyboba_api.v1api_pb2_grpc as apiv1grpc
@@ -25,8 +33,8 @@ from .model.generated import (
 class DormybobaCoreServicer(apiv1grpc.DormybobaCoreServicer):
     """Provides methods that implement functionality of dormyboba-core server."""
     
-    def __init__(self, session: Session, worksheet: Worksheet):
-        self.session = session        
+    def __init__(self, engine: Engine, worksheet: Worksheet):
+        self.engine = engine
         self.worksheet = worksheet
 
     @staticmethod
@@ -38,15 +46,16 @@ class DormybobaCoreServicer(apiv1grpc.DormybobaCoreServicer):
             request: apiv1.GenerateVerificationCodeRequest,
             context: grpc.ServicerContext,
     ):
+        session = Session(self.engine)
         code = random.randint(1000, 9999)
         stmt = select(DormybobaRole.role_id).where(DormybobaRole.role_name == request.role_name)
-        role_id: int = self.session.execute(stmt).first()[0]
+        role_id: int = session.execute(stmt).first()[0]
         stmt = insert(VerificationCode).values(
             code=code,
             role_id=role_id,
         )
-        self.session.execute(stmt)
-        self.session.commit()
+        session.execute(stmt)
+        session.commit()
 
         return apiv1.GenerateVerificationCodeResponse(verification_code=code)
     
@@ -55,8 +64,9 @@ class DormybobaCoreServicer(apiv1grpc.DormybobaCoreServicer):
         request: apiv1.GetRoleByVerificationCodeRequest,
         context: grpc.ServicerContext,
     ):
+        session = Session(self.engine)
         stmt = select(VerificationCode).where(VerificationCode.code == request.verification_code)
-        res = self.session.execute(stmt).first()
+        res = session.execute(stmt).first()
         if res in None:
             return context.abort_with_status(grpc.StatusCode.INVALID_ARGUMENT)
         role: DormybobaRole = res[0]
@@ -71,8 +81,9 @@ class DormybobaCoreServicer(apiv1grpc.DormybobaCoreServicer):
         request: apiv1.CreateUserRequest,
         context: grpc.ServicerContext,
     ):
+        session = Session(self.engine)
         stmt = select(VerificationCode).where(VerificationCode.code == request.verification_code)
-        res = self.session.execute(stmt).first()
+        res = session.execute(stmt).first()
         if res in None:
             return context.abort_with_status(grpc.StatusCode.INVALID_ARGUMENT)
         
@@ -84,8 +95,8 @@ class DormybobaCoreServicer(apiv1grpc.DormybobaCoreServicer):
             year=request.year,
             group=request.group,
         )
-        self.session.execute(stmt)
-        self.session.commit()
+        session.execute(stmt)
+        session.commit()
         return Empty()
 
     def GetUserById(
@@ -93,8 +104,9 @@ class DormybobaCoreServicer(apiv1grpc.DormybobaCoreServicer):
         request: apiv1.GetUserByIdRequest,
         context: grpc.ServicerContext,
     ):
+        session = Session(self.engine)
         stmt = select(DormybobaUser).where(DormybobaUser.user_id == request.user_id)
-        res = self.session.execute(stmt).first()
+        res = session.execute(stmt).first()
 
         if res is None:
             return apiv1.GetUserByIdResponse()
@@ -127,8 +139,9 @@ class DormybobaCoreServicer(apiv1grpc.DormybobaCoreServicer):
         request: None,
         context: grpc.ServicerContext,
     ):
+        session = Session(self.engine)
         stmt = select(Institute)
-        institutes = self.session.execute(stmt).all()
+        institutes = session.execute(stmt).all()
         api_institutes = []
         for row in institutes:
             institute: Institute = row[0]
@@ -144,8 +157,9 @@ class DormybobaCoreServicer(apiv1grpc.DormybobaCoreServicer):
         request: apiv1.GetInstituteByNameRequest,
         context: grpc.ServicerContext,
     ):
+        session = Session(self.engine)
         stmt = select(Institute).where(Institute.institute_name == request.institute_name)
-        res = self.session.execute(stmt).first()
+        res = session.execute(stmt).first()
         if res is None:
             return context.abort_with_status(grpc.StatusCode.INVALID_ARGUMENT)
         institute: Institute = res[0]
@@ -160,8 +174,9 @@ class DormybobaCoreServicer(apiv1grpc.DormybobaCoreServicer):
         request: apiv1.GetAcademicTypeByNameRequest,
         context: grpc.ServicerContext,
     ):
+        session = Session(self.engine)
         stmt = select(AcademicType).where(AcademicType.type_name == request.type_name)
-        res = self.session.execute(stmt).first()
+        res = session.execute(stmt).first()
         if res is None:
             return context.abort_with_status(grpc.StatusCode.INVALID_ARGUMENT)
         academic_type: AcademicType = res[0]
@@ -176,6 +191,7 @@ class DormybobaCoreServicer(apiv1grpc.DormybobaCoreServicer):
         request: apiv1.CreateMailingRequest,
         context: grpc.ServicerContext,
     ):
+        session = Session(self.engine)
         at = None if request.HasField("at") else request.at.ToDatetime()
         stmt = insert(Mailing).values(
             institute_id=self.nullifier(request, "institute_id"),
@@ -185,8 +201,8 @@ class DormybobaCoreServicer(apiv1grpc.DormybobaCoreServicer):
             theme=self.nullifier(request, "theme"),
             mailing_text=request.mailing_text,
         )
-        self.session.execute(stmt)
-        self.session.commit()
+        session.execute(stmt)
+        session.commit()
         return Empty()
 
     def CreateQueue(
@@ -194,6 +210,7 @@ class DormybobaCoreServicer(apiv1grpc.DormybobaCoreServicer):
         request: apiv1.CreateQueueRequest,
         context: grpc.ServicerContext,
     ):
+        session = Session(self.engine)
         open = None if request.HasField("open") else request.open.ToDatetime()
         close = None if request.HasField("open") else request.close.ToDatetime()
         stmt = insert(Queue).values(
@@ -202,8 +219,8 @@ class DormybobaCoreServicer(apiv1grpc.DormybobaCoreServicer):
             open=open,
             close=close,
         )
-        self.session.execute(stmt)
-        self.session.commit()
+        session.execute(stmt)
+        session.commit()
         return Empty()
     
     def AddPersonToQueue(
@@ -211,8 +228,9 @@ class DormybobaCoreServicer(apiv1grpc.DormybobaCoreServicer):
         request: apiv1.AddPersonToQueueRequest,
         context: grpc.ServicerContext,
     ):
+        session = Session(self.engine)
         stmt = select(Queue).where(Queue.queue_id == request.queue_id)
-        res = self.session.execute(stmt).first()
+        res = session.execute(stmt).first()
 
         if res is None:
             return context.abort_with_status(grpc.StatusCode.INVALID_ARGUMENT)
@@ -233,8 +251,8 @@ class DormybobaCoreServicer(apiv1grpc.DormybobaCoreServicer):
             )
             is_active = True
 
-        self.session.execute(stmt)
-        self.session.commit()
+        session.execute(stmt)
+        session.commit()
         return apiv1.AddPersonToQueueResponse(is_active=is_active)
     
     def RemovePersonFromQueue(
@@ -242,6 +260,7 @@ class DormybobaCoreServicer(apiv1grpc.DormybobaCoreServicer):
         request: apiv1.RemovePersonFromQueueRequest,
         context: grpc.ServicerContext,
     ):
+        session = Session(self.engine)
         # just throw if user already left queue
         stmt = delete(QueueToUser).where(
             and_(
@@ -249,8 +268,8 @@ class DormybobaCoreServicer(apiv1grpc.DormybobaCoreServicer):
                 QueueToUser.queue_id == request.queue_id,
             )
         )
-        self.session.execute(stmt)
-        self.session.commit()
+        session.execute(stmt)
+        session.commit()
         return Empty()
     
     def PersonCompleteQueue(
@@ -258,16 +277,17 @@ class DormybobaCoreServicer(apiv1grpc.DormybobaCoreServicer):
         request: apiv1.PersonCompleteQueueRequest,
         context: grpc.ServicerContext,
     ):
+        session = Session(self.engine)
         stmt = delete(QueueToUser).where(
             and_(
                 QueueToUser.user_id == request.user_id,
                 QueueToUser.queue_id == request.queue_id,
             )
         )
-        self.session.execute(stmt)
+        session.execute(stmt)
 
         stmt = select(Queue).where(Queue.queue_id == request.queue_id)
-        queue: Queue = self.session.execute(stmt).first()[0]
+        queue: Queue = session.execute(stmt).first()[0]
 
         key: Callable[[QueueToUser], datetime] = lambda qtu: qtu.joined
         sorted_qtu = sorted(queue.queue_to_user, key=key)
@@ -279,8 +299,8 @@ class DormybobaCoreServicer(apiv1grpc.DormybobaCoreServicer):
             active_user_id=active_user_id,
         )
 
-        self.session.execute(stmt)
-        self.session.commit()
+        session.execute(stmt)
+        session.commit()
 
         return apiv1.PersonCompleteQueueResponse(
             is_queue_empty=is_queue_empty,
@@ -387,12 +407,13 @@ class DormybobaCoreServicer(apiv1grpc.DormybobaCoreServicer):
         request: apiv1.AssignDefectRequest,
         context: grpc.ServicerContext,
     ):
+        session = Session(self.engine)
         stmt = (
             select(DormybobaUser)
             .join(DormybobaRole, DormybobaUser.role_id == DormybobaRole.role_id)
             .where(DormybobaRole.role_name == "admin")
         )
-        res = self.session.execute(stmt).first()
+        res = session.execute(stmt).first()
 
         if res is None:
             return context.abort_with_status(grpc.StatusCode.INTERNAL)
@@ -406,7 +427,7 @@ class DormybobaCoreServicer(apiv1grpc.DormybobaCoreServicer):
         mailing: Mailing,
         users: List[DormybobaUser],
     ) -> apiv1.MailingEvent:
-        at = None if mailing.at is None else Timestamp.FromDatetime(mailing.at)
+        at = None if mailing.at is None else Timestamp().FromDatetime(mailing.at)
         api_mailing = apiv1.Mailing(
             theme=mailing.theme,
             mailing_text=mailing.mailing_text,
@@ -451,6 +472,8 @@ class DormybobaCoreServicer(apiv1grpc.DormybobaCoreServicer):
         request: Any,
         context: grpc.ServicerContext,
     ):
+        logging.debug("Checking mailing events...")
+        session = Session(self.engine)
         events = []
         try:
             stmt = select(Mailing).where(
@@ -459,7 +482,7 @@ class DormybobaCoreServicer(apiv1grpc.DormybobaCoreServicer):
                     datetime.now() > Mailing.at
                 )
             )
-            mailings = self.session.execute(stmt).all()
+            mailings = session.execute(stmt).all()
             # Only registered
             stmt = select(DormybobaUser).where(
                 and_(
@@ -468,7 +491,7 @@ class DormybobaCoreServicer(apiv1grpc.DormybobaCoreServicer):
                     DormybobaUser.year != None,
                 )
             )
-            res = self.session.execute(stmt).all()
+            res = session.execute(stmt).all()
             users = list([row[0] for row in res])
             for row in mailings:
                 mailing: Mailing = row[0]
@@ -476,8 +499,8 @@ class DormybobaCoreServicer(apiv1grpc.DormybobaCoreServicer):
                 events.append(event)
 
                 stmt = delete(Mailing).where(Mailing.mailing_id == mailing.mailing_id)
-                self.session.execute(stmt)
-                self.session.commit()
+                session.execute(stmt)
+                session.commit()
         except Exception as exc:
             logging.exception(exc)
         yield apiv1.MailingEventResponse(events=events)
@@ -488,20 +511,19 @@ class DormybobaCoreServicer(apiv1grpc.DormybobaCoreServicer):
         queue: Queue,
         users: List[DormybobaUser],
     ) -> apiv1.QueueEvent:
-        open = None if queue.open is None else Timestamp.FromDatetime(queue.open)
-        close = None if queue.close is None else Timestamp.FromDatetime(queue.close)
+        open = None if queue.open is None else Timestamp().FromDatetime(queue.open)
+        close = None if queue.close is None else Timestamp().FromDatetime(queue.close)
         
         api_queue = apiv1.Queue(
             queue_id=queue.queue_id,
             title=queue.title,
-            descritpion=queue.description,
+            description=queue.description,
             open=open,
             close=close,
         )
 
         api_users = []
-        for row in users:
-            user: DormybobaUser = row[0]
+        for user in users:
             api_institute = apiv1.Institute(
                 institute_id=user.institute.institute_id,
                 institute_name=user.institute.institute_name,
@@ -528,6 +550,8 @@ class DormybobaCoreServicer(apiv1grpc.DormybobaCoreServicer):
         request: Any,
         context: grpc.ServicerContext,
     ):
+        logging.debug("Checking queue events...")
+        session = Session(self.engine)
         events = []
         try:
             stmt = select(Queue).where(
@@ -536,9 +560,9 @@ class DormybobaCoreServicer(apiv1grpc.DormybobaCoreServicer):
                     Queue.is_opened == False,
                 )
             )
-            queues = self.session.execute(stmt).all()
+            queues = session.execute(stmt).all()
             stmt = select(DormybobaUser)
-            res = self.session.execute(stmt).all()
+            res = session.execute(stmt).all()
             users = list([row[0] for row in res])
 
             for row in queues:
@@ -549,16 +573,16 @@ class DormybobaCoreServicer(apiv1grpc.DormybobaCoreServicer):
                 stmt = update(Queue).where(Queue.queue_id == queue.queue_id).values(
                     is_opened = True,
                 )
-                self.session.execute(stmt)
-                self.session.commit()
+                session.execute(stmt)
+                session.commit()
         except Exception as exc:
             logging.exception(exc)
         yield apiv1.QueueEventResponse(events=events)
 
-def serve(session: Session, worksheet: Worksheet):
+def serve(engine: Engine, worksheet: Worksheet):
     server = grpc.server(futures.ThreadPoolExecutor(max_workers=10))
     apiv1grpc.add_DormybobaCoreServicer_to_server(
-        DormybobaCoreServicer(session, worksheet), server
+        DormybobaCoreServicer(engine, worksheet), server
     )
     logging.info("Starting server...")
     server.add_insecure_port("[::]:50051")
