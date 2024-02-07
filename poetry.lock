@@ -144,8 +144,8 @@ develop = false
 [package.source]
 type = "git"
 url = "https://github.com/aaletov/dormyboba-api.git"
-reference = "9-fix-4-use-optional-for-optional-fields"
-resolved_reference = "e50d88fc1b7bd09bccb336b78b044933cd74dbfe"
+reference = "main"
+resolved_reference = "36ac3ab477bd6279663166ff26eda9578c69ce91"
 subdirectory = "api/generated/python"
 
 [[package]]
@@ -977,4 +977,4 @@ zstd = ["zstandard (>=0.18.0)"]
 [metadata]
 lock-version = "2.0"
 python-versions = ">=3.11,<4.0"
-content-hash = "dffca4327d4ddab2b93b10480edc01aa107d81809a9ab83c49a8b2de9f967c43"
+content-hash = "68b3e352ff9713a78607f12bb7d4cd6fdf6a0a57e199bbca54cc03f442df1e74"
