@@ -41,7 +41,8 @@ CREATE TABLE "mailing" (
   "at" timestamp,
   "academic_type_id" integer REFERENCES "academic_type" ("type_id"),
   "institute_id" integer REFERENCES "institute" ("institute_id"),
-  "year" integer
+  "year" integer,
+  "is_event_generated" boolean NOT NULL DEFAULT FALSE
 );
 
 CREATE TABLE "queue" (
@@ -50,8 +51,8 @@ CREATE TABLE "queue" (
   "description" varchar(256),
   "open" timestamp,
   "close" timestamp,
-  "is_opened" boolean NOT NULL DEFAULT FALSE,
-  "active_user_id" integer REFERENCES "dormyboba_user" ("user_id")
+  "active_user_id" integer REFERENCES "dormyboba_user" ("user_id"),
+  "is_event_generated" boolean NOT NULL DEFAULT FALSE
 );
 
 CREATE TABLE "queue_to_user" (

@@ -82,6 +82,7 @@ class Mailing(Base):
     )
 
     mailing_id: Mapped[int] = mapped_column(Integer, primary_key=True)
+    is_event_generated: Mapped[bool] = mapped_column(Boolean, server_default=text('false'))
     theme: Mapped[Optional[str]] = mapped_column(String(256))
     mailing_text: Mapped[Optional[str]] = mapped_column(Text)
     at: Mapped[Optional[datetime.datetime]] = mapped_column(DateTime)
@@ -114,7 +115,7 @@ class Queue(Base):
     )
 
     queue_id: Mapped[int] = mapped_column(Integer, primary_key=True)
-    is_opened: Mapped[bool] = mapped_column(Boolean, server_default=text('false'))
+    is_event_generated: Mapped[bool] = mapped_column(Boolean, server_default=text('false'))
     title: Mapped[Optional[str]] = mapped_column(String(256))
     description: Mapped[Optional[str]] = mapped_column(String(256))
     open: Mapped[Optional[datetime.datetime]] = mapped_column(DateTime)
