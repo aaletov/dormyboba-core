@@ -2,6 +2,7 @@ from typing import Callable, List, Any, Optional
 import random
 from concurrent import futures
 import logging
+import asyncio
 from datetime import datetime
 import grpc
 from google.protobuf.empty_pb2 import Empty
@@ -467,44 +468,53 @@ class DormybobaCoreServicer(apiv1grpc.DormybobaCoreServicer):
             users=api_users,
         )
 
-    def MailingEvent(
+    async def MailingEvent(
         self,
         request: Any,
         context: grpc.ServicerContext,
     ):
-        logging.debug("Checking mailing events...")
-        session = Session(self.engine)
-        events = []
-        try:
-            stmt = select(Mailing).where(
-                or_(
-                    Mailing.at == None,
-                    datetime.now() > Mailing.at
+        while True:
+            logging.debug("Checking mailing events...")
+            try:
+                session = Session(self.engine)
+                stmt = select(Mailing).where(
+                    and_(
+                        or_(
+                            Mailing.at == None,
+                            datetime.now() > Mailing.at,
+                        ),
+                        Mailing.is_event_generated == False,
+                    )
                 )
-            )
-            mailings = session.execute(stmt).all()
-            # Only registered
-            stmt = select(DormybobaUser).where(
-                and_(
-                    DormybobaUser.institute_id != None,
-                    DormybobaUser.academic_type_id != None,
-                    DormybobaUser.year != None,
-                )
-            )
-            res = session.execute(stmt).all()
-            users = list([row[0] for row in res])
-            for row in mailings:
-                mailing: Mailing = row[0]
-                event = self._build_api_mailing_event(mailing, users)
-                events.append(event)
+                row = session.execute(stmt).first()
 
-                stmt = delete(Mailing).where(Mailing.mailing_id == mailing.mailing_id)
+                if row is None:
+                    await asyncio.sleep(15)
+                    continue
+                
+                mailing: Mailing = row[0]
+                # Only registered
+                stmt = select(DormybobaUser).where(
+                    and_(
+                        DormybobaUser.institute_id != None,
+                        DormybobaUser.academic_type_id != None,
+                        DormybobaUser.year != None,
+                    )
+                )
+                rows = session.execute(stmt).all()
+                users = list([row[0] for row in rows])
+    
+                event = self._build_api_mailing_event(mailing, users)
+
+                stmt = update(Mailing).where(Mailing.mailing_id == mailing.mailing_id).values(
+                    is_event_generated=True,
+                )
                 session.execute(stmt)
                 session.commit()
-        except Exception as exc:
-            logging.exception(exc)
-        yield apiv1.MailingEventResponse(events=events)
-        
+
+                yield apiv1.MailingEventResponse(event=event)
+            except Exception as exc:
+                logging.exception(exc)
 
     def _build_api_queue_event(
         self,
@@ -545,50 +555,52 @@ class DormybobaCoreServicer(apiv1grpc.DormybobaCoreServicer):
             users=api_users,
         )
 
-    def QueueEvent(
+    async def QueueEvent(
         self,
         request: Any,
         context: grpc.ServicerContext,
     ):
-        logging.debug("Checking queue events...")
-        session = Session(self.engine)
-        events = []
-        try:
-            stmt = select(Queue).where(
-                and_(
-                    datetime.now() > Queue.open,
-                    Queue.is_opened == False,
+        while True:
+            logging.debug("Checking queue events...")
+            try:
+                session = Session(self.engine)
+                stmt = select(Queue).where(
+                    and_(
+                        datetime.now() > Queue.open,
+                        Queue.is_event_generated == False,
+                    )
                 )
-            )
-            queues = session.execute(stmt).all()
-            stmt = select(DormybobaUser)
-            res = session.execute(stmt).all()
-            users = list([row[0] for row in res])
-
-            for row in queues:
+                row = session.execute(stmt).first()
+                if row is None:
+                    await asyncio.sleep(15)
+                    continue
                 queue: Queue = row[0]
+                stmt = select(DormybobaUser)
+                res = session.execute(stmt).all()
+                users = list([row[0] for row in res])
+
                 event = self._build_api_queue_event(queue, users)
-                events.append(event)
 
                 stmt = update(Queue).where(Queue.queue_id == queue.queue_id).values(
-                    is_opened = True,
+                    is_event_generated=True,
                 )
                 session.execute(stmt)
                 session.commit()
-        except Exception as exc:
-            logging.exception(exc)
-        yield apiv1.QueueEventResponse(events=events)
+    
+                yield apiv1.QueueEventResponse(event=event)
+            except Exception as exc:
+                logging.exception(exc)
 
-def serve(engine: Engine, worksheet: Worksheet):
-    server = grpc.server(futures.ThreadPoolExecutor(max_workers=10))
+async def serve(engine: Engine, worksheet: Worksheet):
+    server = grpc.aio.server(futures.ThreadPoolExecutor(max_workers=10))
     apiv1grpc.add_DormybobaCoreServicer_to_server(
         DormybobaCoreServicer(engine, worksheet), server
     )
     logging.info("Starting server...")
     server.add_insecure_port("[::]:50051")
-    server.start()
-    server.wait_for_termination()
+    await server.start()
+    await server.wait_for_termination()
 
 if __name__ == "__main__":
     logging.basicConfig()
-    serve()
+    asyncio.run(serve())

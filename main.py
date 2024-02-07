@@ -1,6 +1,7 @@
 import logging
 import yaml
 from pathlib import Path
+import asyncio
 from sqlalchemy import create_engine
 from sqlalchemy.orm import Session
 import gspread
@@ -30,4 +31,4 @@ if __name__ == "__main__":
     gc = gspread.service_account(filename=BASE_DIR / "service_account.json")
     defect_sheet = gc.open_by_key(DEFECT_SHEET_ID)
     worksheet = defect_sheet.get_worksheet(0)
-    serve(engine, worksheet)
+    asyncio.run(serve(engine, worksheet))
