@@ -1,0 +1,23 @@
+[tool.poetry]
+name = "dormyboba-core"
+version = "0.1.0"
+description = ""
+authors = ["Your Name <you@example.com>"]
+license = "MIT"
+readme = "README.md"
+
+[tool.poetry.dependencies]
+python = ">=3.11,<4.0"
+dormyboba-api = {git = "https://github.com/aaletov/dormyboba-api.git", rev = "main", subdirectory = "api/generated/python"}
+sqlacodegen = "3.0.0rc3"
+psycopg2-binary = "^2.9.9"
+pyyaml = "^6.0.1"
+grpcio = "^1.60.1"
+grpcio-tools = "^1.60.1"
+gspread = "^6.0.0"
+sqlalchemy = "^2.0.25"
+
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"
