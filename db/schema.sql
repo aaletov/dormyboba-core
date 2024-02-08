@@ -26,7 +26,6 @@ CREATE TABLE "verification_code" (
 
 CREATE TABLE "dormyboba_user" (
   "user_id" integer PRIMARY KEY,
-  "peer_id" integer UNIQUE,
   "role_id" integer REFERENCES "dormyboba_role" ("role_id"),
   "academic_type_id" integer REFERENCES "academic_type" ("type_id"),
   "institute_id" integer REFERENCES "institute" ("institute_id"),

@@ -54,12 +54,10 @@ class DormybobaUser(Base):
         ForeignKeyConstraint(['academic_type_id'], ['academic_type.type_id'], name='dormyboba_user_academic_type_id_fkey'),
         ForeignKeyConstraint(['institute_id'], ['institute.institute_id'], name='dormyboba_user_institute_id_fkey'),
         ForeignKeyConstraint(['role_id'], ['dormyboba_role.role_id'], name='dormyboba_user_role_id_fkey'),
-        PrimaryKeyConstraint('user_id', name='dormyboba_user_pkey'),
-        UniqueConstraint('peer_id', name='dormyboba_user_peer_id_key')
+        PrimaryKeyConstraint('user_id', name='dormyboba_user_pkey')
     )
 
     user_id: Mapped[int] = mapped_column(Integer, primary_key=True)
-    peer_id: Mapped[Optional[int]] = mapped_column(Integer)
     role_id: Mapped[Optional[int]] = mapped_column(Integer)
     academic_type_id: Mapped[Optional[int]] = mapped_column(Integer)
     institute_id: Mapped[Optional[int]] = mapped_column(Integer)
