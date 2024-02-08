@@ -58,11 +58,11 @@ class DormybobaUser(Base):
     )
 
     user_id: Mapped[int] = mapped_column(Integer, primary_key=True)
-    role_id: Mapped[Optional[int]] = mapped_column(Integer)
-    academic_type_id: Mapped[Optional[int]] = mapped_column(Integer)
-    institute_id: Mapped[Optional[int]] = mapped_column(Integer)
-    year: Mapped[Optional[int]] = mapped_column(Integer)
-    group: Mapped[Optional[str]] = mapped_column(String(5))
+    role_id: Mapped[int] = mapped_column(Integer)
+    academic_type_id: Mapped[int] = mapped_column(Integer)
+    institute_id: Mapped[int] = mapped_column(Integer)
+    enroll_year: Mapped[int] = mapped_column(Integer)
+    academic_group: Mapped[str] = mapped_column(String(5))
 
     academic_type: Mapped['AcademicType'] = relationship('AcademicType', back_populates='dormyboba_user')
     institute: Mapped['Institute'] = relationship('Institute', back_populates='dormyboba_user')
@@ -86,7 +86,7 @@ class Mailing(Base):
     at: Mapped[Optional[datetime.datetime]] = mapped_column(DateTime)
     academic_type_id: Mapped[Optional[int]] = mapped_column(Integer)
     institute_id: Mapped[Optional[int]] = mapped_column(Integer)
-    year: Mapped[Optional[int]] = mapped_column(Integer)
+    enroll_year: Mapped[Optional[int]] = mapped_column(Integer)
 
     academic_type: Mapped['AcademicType'] = relationship('AcademicType', back_populates='mailing')
     institute: Mapped['Institute'] = relationship('Institute', back_populates='mailing')
@@ -100,7 +100,7 @@ class VerificationCode(Base):
     )
 
     code: Mapped[int] = mapped_column(Integer, primary_key=True)
-    role_id: Mapped[Optional[int]] = mapped_column(Integer)
+    role_id: Mapped[int] = mapped_column(Integer)
 
     role: Mapped['DormybobaRole'] = relationship('DormybobaRole', back_populates='verification_code')
 

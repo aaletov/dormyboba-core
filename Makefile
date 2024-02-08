@@ -14,4 +14,4 @@ init-db:
 	PGPASSWORD=${PG_PASSWORD} psql -h ${PG_HOST} -U ${PG_USER} -f db/drop.sql
 	PGPASSWORD=${PG_PASSWORD} psql -h ${PG_HOST} -U ${PG_USER} -f db/schema.sql
 	PGPASSWORD=${PG_PASSWORD} psql -h ${PG_HOST} -U ${PG_USER} -f db/data.sql
-	PGPASSWORD=${PG_PASSWORD} psql -h ${PG_HOST} -U ${PG_USER} -f db/data_for_mailing.sql
+	

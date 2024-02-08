@@ -22,10 +22,24 @@ INSERT INTO public.institute (institute_id, institute_name) VALUES
     (50, 'Физмех'),
     (51, 'ИКНК');
 
-INSERT INTO public.dormyboba_user (user_id, role_id, institute_id, academic_type_id, year)
-    SELECT 608713, role_id, 51, 3, 0 
+INSERT INTO public.dormyboba_user(
+        user_id,
+        role_id,
+        institute_id,
+        academic_type_id,
+        enroll_year,
+        academic_group
+    )
+    SELECT 608713, role_id, 51, 3, 0, '00104'
     FROM public.dormyboba_role WHERE role_name = 'admin';
 
-INSERT INTO public.dormyboba_user (user_id, role_id, institute_id, academic_type_id, year)
-    SELECT 507316373, role_id, 51, 3, 0 
+INSERT INTO public.dormyboba_user(
+        user_id,
+        role_id,
+        institute_id,
+        academic_type_id,
+        enroll_year,
+        academic_group
+    )
+    SELECT 507316373, role_id, 51, 3, 0, '00104'
     FROM public.dormyboba_role WHERE role_name = 'admin';
