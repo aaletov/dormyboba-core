@@ -5,7 +5,7 @@ from sqlalchemy.orm import Session
 from ..import model
 from ..import entity
 
-class AcademicTypeRepository(abc.ABCMeta):
+class AcademicTypeRepository(metaclass=abc.ABCMeta):
     """An interface to academic type repository"""
 
     @abc.abstractmethod

@@ -5,7 +5,7 @@ from sqlalchemy.orm import Session
 from .. import entity
 from .. import model
 
-class InstituteRepository(abc.ABCMeta):
+class InstituteRepository(metaclass=abc.ABCMeta):
     """An interface to institue repository"""
 
     def list(self) -> List[entity.Institute]:

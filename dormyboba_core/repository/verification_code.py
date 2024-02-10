@@ -2,11 +2,10 @@ from typing import Optional
 import abc
 from sqlalchemy import Engine, select, insert
 from sqlalchemy.orm import Session
-from dormyboba_core.entity.dormyboba_user import VerificationCode
 from .. import entity
 from .. import model
 
-class VerificationCodeRepository(abc.ABCMeta):
+class VerificationCodeRepository(metaclass=abc.ABCMeta):
     """An interface to verification code repository"""
 
     @abc.abstractmethod
@@ -34,7 +33,7 @@ class SqlAlchemyVerificationCodeRepository(VerificationCodeRepository):
             )
             res = session.execute(stmt).first()
             role: model.DormybobaRole = res[0]
-            stmt = insert(VerificationCode).values(
+            stmt = insert(model.VerificationCode).values(
                 code=verification_code.verification_code,
                 role_id=role.role_id,
             )

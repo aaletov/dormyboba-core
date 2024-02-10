@@ -4,7 +4,7 @@ from gspread import Cell, Worksheet
 import dormyboba_api.v1api_pb2 as apiv1
 from .. import entity
 
-class DefectRepository(abc.ABCMeta):
+class DefectRepository(metaclass=abc.ABCMeta):
     """An interface to dormyboba repository"""
 
     @abc.abstractmethod

@@ -6,7 +6,7 @@ from sqlalchemy.orm import Session
 from .. import entity
 from .. import model
 
-class QueueRepository(abc.ABCMeta):
+class QueueRepository(metaclass=abc.ABCMeta):
     """An interface to queue repository"""
 
     @abc.abstractmethod

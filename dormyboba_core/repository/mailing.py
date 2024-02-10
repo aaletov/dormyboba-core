@@ -6,7 +6,7 @@ from sqlalchemy.orm import Session
 from .. import entity
 from .. import model
 
-class MailingRepository(abc.ABCMeta):
+class MailingRepository(metaclass=abc.ABCMeta):
     """An interface to mailing repository"""
 
     @abc.abstractmethod
