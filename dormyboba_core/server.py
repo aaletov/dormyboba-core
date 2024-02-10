@@ -36,8 +36,6 @@ class DormybobaCoreServicer(apiv1grpc.DormybobaCoreServicer):
     
     def __init__(
         self,
-        engine: Engine,
-        worksheet: Worksheet,
         user_repository: SqlAlchemyDormybobaUserRepository,
         code_repository: SqlAlchemyVerificationCodeRepository,
         institute_repository: SqlAlchemyInstituteRepository,
@@ -46,8 +44,6 @@ class DormybobaCoreServicer(apiv1grpc.DormybobaCoreServicer):
         mailing_repository: SqlAlchemyMailingRepository,
         queue_repository: SqlAlchemyQueueRepository,
     ):
-        self.engine = engine
-        self.worksheet = worksheet
         self.user_repository = user_repository
         self.code_repository = code_repository
         self.institute_repository = institute_repository
@@ -290,15 +286,28 @@ class DormybobaCoreServicer(apiv1grpc.DormybobaCoreServicer):
                 logging.exception(exc)
 
 async def serve(engine: Engine, worksheet: Worksheet):
-    server = grpc.aio.server(futures.ThreadPoolExecutor(max_workers=10))
-    apiv1grpc.add_DormybobaCoreServicer_to_server(
-        DormybobaCoreServicer(engine, worksheet), server
+    user_repository = SqlAlchemyDormybobaUserRepository(engine)
+    code_repository = SqlAlchemyVerificationCodeRepository(engine)
+    institute_repository = SqlAlchemyInstituteRepository(engine)
+    academic_type_repository = SqlAlchemyAcademicTypeRepository(engine)
+    mailing_repository = SqlAlchemyMailingRepository(engine)
+    queue_repository = SqlAlchemyQueueRepository(engine)
+    sheet_repository = GsheetDefectRepository(worksheet)
+
+    servicer = DormybobaCoreServicer(
+        user_repository=user_repository,
+        code_repository=code_repository,
+        institute_repository=institute_repository,
+        academic_type_repository=academic_type_repository,
+        mailing_repository=mailing_repository,
+        queue_repository=queue_repository,
+        sheet_repository=sheet_repository,
     )
+
+    server = grpc.aio.server(futures.ThreadPoolExecutor(max_workers=10))
+    apiv1grpc.add_DormybobaCoreServicer_to_server(servicer, server)
+
     logging.info("Starting server...")
     server.add_insecure_port("[::]:50051")
     await server.start()
     await server.wait_for_termination()
-
-if __name__ == "__main__":
-    logging.basicConfig()
-    asyncio.run(serve())

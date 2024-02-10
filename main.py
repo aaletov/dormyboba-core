@@ -6,6 +6,7 @@ from sqlalchemy import create_engine
 from sqlalchemy.orm import Session
 import gspread
 from dormyboba_core.server import serve
+from dormyboba_core.repository import *
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent
@@ -28,7 +29,10 @@ if __name__ == "__main__":
     logging.basicConfig(level=logging.DEBUG)
     logging.info("Creating engine...")
     engine = create_engine(DB_URL)
+
     gc = gspread.service_account(filename=BASE_DIR / "service_account.json")
     defect_sheet = gc.open_by_key(DEFECT_SHEET_ID)
     worksheet = defect_sheet.get_worksheet(0)
+
+
     asyncio.run(serve(engine, worksheet))
