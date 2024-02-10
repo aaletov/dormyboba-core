@@ -7,7 +7,7 @@ ALCH_URL := postgresql://${PG_USER}:${PG_PASSWORD}@${PG_HOST}:${PG_PORT}/${PG_DB
 
 .PHONY: alchemy-models
 alchemy-models:
-	poetry run sqlacodegen ${ALCH_URL} --outfile dormyboba_core/model/generated.py
+	poetry run sqlacodegen ${ALCH_URL} --outfile dormyboba_core/model/generated/generated.py
 
 .PHONY: init-db
 init-db:
