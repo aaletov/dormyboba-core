@@ -21,17 +21,16 @@ CREATE TABLE "dormyboba_role" (
 
 CREATE TABLE "verification_code" (
   "code" integer PRIMARY KEY,
-  "role_id" integer REFERENCES "dormyboba_role" ("role_id")
+  "role_id" integer NOT NULL REFERENCES "dormyboba_role" ("role_id")
 );
 
 CREATE TABLE "dormyboba_user" (
   "user_id" integer PRIMARY KEY,
-  "peer_id" integer UNIQUE,
-  "role_id" integer REFERENCES "dormyboba_role" ("role_id"),
-  "academic_type_id" integer REFERENCES "academic_type" ("type_id"),
-  "institute_id" integer REFERENCES "institute" ("institute_id"),
-  "year" integer,
-  "group" varchar(5)
+  "role_id" integer NOT NULL REFERENCES "dormyboba_role" ("role_id"),
+  "academic_type_id" integer NOT NULL REFERENCES "academic_type" ("type_id"),
+  "institute_id" integer NOT NULL REFERENCES "institute" ("institute_id"),
+  "enroll_year" integer NOT NULL,
+  "academic_group" varchar(5) NOT NULL
 );
 
 CREATE TABLE "mailing" (
@@ -41,7 +40,7 @@ CREATE TABLE "mailing" (
   "at" timestamp,
   "academic_type_id" integer REFERENCES "academic_type" ("type_id"),
   "institute_id" integer REFERENCES "institute" ("institute_id"),
-  "year" integer,
+  "enroll_year" integer,
   "is_event_generated" boolean NOT NULL DEFAULT FALSE
 );
 
