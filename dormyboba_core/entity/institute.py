@@ -1,3 +1,4 @@
+from typing import Optional
 from dataclasses import dataclass
 import dormyboba_api.v1api_pb2 as apiv1
 import dormyboba_api.v1api_pb2_grpc as apiv1grpc
@@ -7,13 +8,14 @@ from .. import model
 @dataclass
 class Institute:
     institute_id: int
-    institute_name: str
+    institute_name: Optional[str]
 
     @staticmethod
     def from_api(api_institute: apiv1.Institute) -> 'Institute':
+        institute_name = None if api_institute.institute_name == "" else api_institute.institute_name
         return Institute(
             institute_id=api_institute.institute_id,
-            institute_name=api_institute.institute_name,
+            institute_name=institute_name,
         )
     
     def to_api(self) -> apiv1.Institute:

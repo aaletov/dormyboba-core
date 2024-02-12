@@ -47,7 +47,7 @@ class SqlAlchemyQueueRepository(QueueRepository):
         model_queue = queue.to_model()
         with Session(self.engine) as session, session.begin():
             session.add(model_queue)
-        return entity.Queue.from_model(model_queue)
+            return entity.Queue.from_model(model_queue)
 
     def getById(self, queue_id: int) -> Optional[entity.Queue]:
         with Session(self.engine) as session, session.begin():
@@ -61,7 +61,6 @@ class SqlAlchemyQueueRepository(QueueRepository):
             session.merge(queue.to_model())
     
     def addUser(self, queue: entity.Queue, user: entity.DormybobaUser) -> entity.Queue:
-        model_queue = None
         with Session(self.engine) as session, session.begin():
             stmt = select(model.Queue).where(
                 model.Queue.queue_id == queue.queue_id)
@@ -72,8 +71,8 @@ class SqlAlchemyQueueRepository(QueueRepository):
 
             model_queue: model.Queue = res[0]
             if model_queue.active_user == None:
-                stmt = update(entity.Queue).where(
-                    entity.Queue.queue_id == model_queue.queue_id,
+                stmt = update(model.Queue).where(
+                    model.Queue.queue_id == model_queue.queue_id,
                 ).values(
                     active_user_id=user.user_id
                 )
@@ -85,7 +84,7 @@ class SqlAlchemyQueueRepository(QueueRepository):
                     joined=datetime.now(),
                 )
             session.execute(stmt)
-        return entity.Queue.from_model(model_queue)
+            return entity.Queue.from_model(model_queue)
     
     def deleteUser(self, queue: entity.Queue, user: entity.DormybobaUser) -> None:
         with Session(self.engine) as session, session.begin():
@@ -99,17 +98,15 @@ class SqlAlchemyQueueRepository(QueueRepository):
 
     def moveQueue(self, queue: entity.Queue) -> entity.Queue:
         with Session(self.engine) as session, session.begin():
-            stmt = select(model.QueueToUser).where(
-                model.QueueToUser.queue_id == queue.queue_id,
-            ).order_by(model.QueueToUser.joined)
-            res = session.execute(stmt).first()
-            model_queue = queue.to_model()
-            if res is None:
+            model_queue = session.merge(queue.to_model())
+
+            if len(model_queue.queue_to_user) == 0:
                 model_queue.active_user = None
-            else:    
-                qtu: model.QueueToUser = res[0]
+            else:
+                qtu = min(model_queue.queue_to_user, key=lambda qtu: qtu.joined)
                 model_queue.active_user = qtu.user
-            session.merge(model_queue)
+                session.delete(qtu)
+
             return entity.Queue.from_model(model_queue)
 
     def getEvent(self) -> Optional[entity.QueueEvent]:
@@ -129,6 +126,11 @@ class SqlAlchemyQueueRepository(QueueRepository):
 
             stmt = select(model.DormybobaUser)
             rows = session.execute(stmt).all()
+
+            stmt = update(model.Queue).where(
+                model.Queue.queue_id == model_queue.queue_id,
+            ).values(is_event_generated=True)
+            session.execute(stmt)
 
             return entity.QueueEvent(
                 queue=entity.Queue.from_model(model_queue),

@@ -1,3 +1,4 @@
+from typing import Optional
 from dataclasses import dataclass
 import dormyboba_api.v1api_pb2 as apiv1
 import dormyboba_api.v1api_pb2_grpc as apiv1grpc
@@ -7,13 +8,16 @@ from .. import model
 @dataclass
 class AcademicType:
     type_id: int
-    type_name: str
+    type_name: Optional[str]
 
     @staticmethod
     def from_api(api_academic_type: apiv1.AcademicType) -> 'AcademicType':
+        type_name = None
+        if api_academic_type.type_name != "":
+            type_name = api_academic_type.type_name
         return AcademicType(
             type_id=api_academic_type.type_id,
-            type_name=api_academic_type.type_name
+            type_name=type_name,
         )
     
     def to_api(self) -> apiv1.AcademicType:

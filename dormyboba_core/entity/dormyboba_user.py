@@ -12,9 +12,10 @@ class DormybobaRole:
 
     @staticmethod
     def from_api(api_role: apiv1.DormybobaRole) -> 'DormybobaRole':
+        role_name = None if api_role.role_name == "" else api_role.role_name
         return DormybobaRole(
             role_id=api_role.role_id,
-            role_name=api_role.role_name,
+            role_name=role_name,
         )
     
     def to_api(self) -> apiv1.DormybobaRole:
@@ -68,11 +69,23 @@ class DormybobaUser:
     
     @staticmethod
     def from_model(model_user: model.DormybobaUser) -> 'DormybobaUser':
+        model_role = None
+        if model_user.role is not None:
+            model_role=DormybobaRole.from_model(model_user.role)
+        
+        model_institute = None
+        if model_user.institute is not None:
+            model_institute = Institute.from_model(model_user.institute)
+        
+        model_academic_type = None
+        if model_user.academic_type is not None:
+            model_academic_type = AcademicType.from_model(model_user.academic_type)
+        
         return DormybobaUser(
             user_id=model_user.user_id,
-            role=DormybobaRole.from_model(model_user.role),
-            institute=Institute.from_model(model_user.institute),
-            academic_type=AcademicType.from_model(model_user.academic_type),
+            role=model_role,
+            institute=model_institute,
+            academic_type=model_academic_type,
             year=model_user.enroll_year,
             group=model_user.academic_group,
         )
@@ -80,9 +93,9 @@ class DormybobaUser:
     def to_model(self) -> model.DormybobaUser:
         return model.DormybobaUser(
             user_id=self.user_id,
-            role=self.role.to_model(),
-            institue=self.institute.to_model(),
-            academic_type=self.academic_type.to_model(),
-            year=self.year,
-            group=self.group,
+            role_id=self.role.role_id,
+            institute_id=self.institute.institute_id,
+            academic_type_id=self.academic_type.type_id,
+            enroll_year=self.year,
+            academic_group=self.group,
         )

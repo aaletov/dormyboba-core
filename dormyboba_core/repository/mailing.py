@@ -31,7 +31,7 @@ class SqlAlchemyMailingRepository(MailingRepository):
         model_mailing = mailing.to_model()
         with Session(self.engine) as session, session.begin():
             session.add(model_mailing)
-        return entity.Mailing.from_model(model_mailing)
+            return entity.Mailing.from_model(model_mailing)
     
     def getEvent(self) -> Optional[entity.MailingEvent]:
         with Session(self.engine) as session, session.begin():
@@ -83,4 +83,4 @@ class SqlAlchemyMailingRepository(MailingRepository):
         model_mailing = mailing.to_model()
         with Session(self.engine) as session, session.begin():
             session.merge(model_mailing)
-        return entity.Mailing.from_model(model_mailing)
+            return entity.Mailing.from_model(model_mailing)

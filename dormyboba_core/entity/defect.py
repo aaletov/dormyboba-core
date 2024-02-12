@@ -1,4 +1,4 @@
-from typing import Dict
+from typing import Dict, Optional
 from dataclasses import dataclass
 from enum import Enum
 import random
@@ -20,7 +20,7 @@ class DefectType(Enum):
 
     @staticmethod
     def _get_entity_to_api_map() -> Dict['DefectType', apiv1.DefectType]:
-        return {v: k for k, v in DefectType._get_api_to_entity_map.items()}
+        return {v: k for k, v in DefectType._get_api_to_entity_map().items()}
 
     @staticmethod
     def from_api(api_type: apiv1.DefectType) -> 'DefectType':
@@ -32,7 +32,7 @@ class DefectType(Enum):
             DefectType.PLUMB: apiv1.PLUMB,
             DefectType.COMMON: apiv1.COMMON,
         }
-        return _TYPE_ENTITY_TO_API[self.value]
+        return _TYPE_ENTITY_TO_API[self]
     
     @staticmethod
     def _get_model_to_entity_map() -> Dict[str, 'DefectType']:
@@ -44,14 +44,14 @@ class DefectType(Enum):
     
     @staticmethod
     def _get_entity_to_model_map() -> Dict['DefectType', str]:
-        return {v: k for k, v in DefectType._get_model_to_entity_map.items()}
+        return {v: k for k, v in DefectType._get_model_to_entity_map().items()}
     
     @staticmethod
     def from_model(model_type: str) -> 'DefectType':
         return DefectType._get_model_to_entity_map()[model_type]
         
     def to_model(self) -> str:
-        return DefectType._get_entity_to_model_map()[self.value]
+        return DefectType._get_entity_to_model_map()[self]
 
 class DefectStatus(Enum):
     CREATED = 0
@@ -68,14 +68,14 @@ class DefectStatus(Enum):
     
     @staticmethod
     def _get_entity_to_api_map() -> Dict['DefectStatus', apiv1.DefectStatus]:
-        return {v: k for k, v in DefectStatus._get_api_to_entity_map.items()}
+        return {v: k for k, v in DefectStatus._get_api_to_entity_map().items()}
 
     @staticmethod
     def from_api(api_type: apiv1.DefectStatus) -> 'DefectStatus':
         return DefectStatus._get_api_to_entity_map()[api_type]
 
     def to_api(self) -> apiv1.DefectStatus:
-        return DefectStatus._get_entity_to_api_map()[self.value]
+        return DefectStatus._get_entity_to_api_map()[self]
     
     @staticmethod
     def _get_model_to_entity_map() -> Dict[str, 'DefectStatus']:
@@ -87,40 +87,28 @@ class DefectStatus(Enum):
     
     @staticmethod
     def _get_entity_to_model_map() -> Dict['DefectStatus', str]:
-        return {v: k for k, v in DefectStatus._get_model_to_entity_map.items()}
+        return {v: k for k, v in DefectStatus._get_model_to_entity_map().items()}
     
     @staticmethod
     def from_model(model_type: str) -> 'DefectStatus':
         return DefectStatus._get_model_to_entity_map()[model_type]
         
     def to_model(self) -> str:
-        return DefectStatus._get_entity_to_model_map()[self.value]
+        return DefectStatus._get_entity_to_model_map()[self]
 
 @dataclass
 class Defect:
-    defect_id: str
+    defect_id: Optional[str]
     user_id: int
     defect_type: DefectType
     description: str
     defect_status: DefectStatus
 
-    def __init__(
-        self,
-        user_id: int,
-        defect_type: DefectType,
-        description: str,
-        defect_status: DefectStatus, 
-    ):
-        self.defect_id = "DD" + str(random.randint(1000, 9999))
-        self.user_id = user_id
-        self.defect_type = defect_type
-        self.description = description
-        self.defect_status = defect_status
-
     @staticmethod
     def from_api(api_defect: apiv1.Defect) -> 'Defect':
+        defect_id = None if not(api_defect.HasField("defect_id")) else api_defect.defect_id
         return Defect(
-            defect_id=api_defect.defect_id,
+            defect_id=defect_id,
             user_id=api_defect.user_id,
             defect_type=DefectType.from_api(api_defect.defect_type),
             description=api_defect.description,
@@ -139,6 +127,7 @@ class Defect:
     @staticmethod
     def from_model(model_defect: model.Defect) -> 'Defect':
         defect = Defect(
+            defect_id=model_defect[0],
             user_id=model_defect[1],
             defect_type=DefectType.from_model(model_defect[2]),
             description=model_defect[3],

@@ -23,6 +23,7 @@ import dormyboba_api.v1api_pb2_grpc as apiv1grpc
 from . import entity
 from .repository import (
     SqlAlchemyDormybobaUserRepository,
+    SqlAlchemyDormybobaRoleRepository,
     SqlAlchemyVerificationCodeRepository,
     SqlAlchemyInstituteRepository,
     SqlAlchemyAcademicTypeRepository,
@@ -37,6 +38,7 @@ class DormybobaCoreServicer(apiv1grpc.DormybobaCoreServicer):
     def __init__(
         self,
         user_repository: SqlAlchemyDormybobaUserRepository,
+        role_repository: SqlAlchemyDormybobaRoleRepository,
         code_repository: SqlAlchemyVerificationCodeRepository,
         institute_repository: SqlAlchemyInstituteRepository,
         academic_type_repository: SqlAlchemyAcademicTypeRepository,
@@ -45,6 +47,7 @@ class DormybobaCoreServicer(apiv1grpc.DormybobaCoreServicer):
         queue_repository: SqlAlchemyQueueRepository,
     ):
         self.user_repository = user_repository
+        self.role_repository = role_repository
         self.code_repository = code_repository
         self.institute_repository = institute_repository
         self.academic_type_repository = academic_type_repository
@@ -61,9 +64,10 @@ class DormybobaCoreServicer(apiv1grpc.DormybobaCoreServicer):
             request: apiv1.GenerateVerificationCodeRequest,
             context: grpc.ServicerContext,
     ):
+        role = self.role_repository.getByName(request.role_name)
         code = entity.VerificationCode(
             verification_code=random.randint(1000, 9999),
-            role=entity.DormybobaRole(role_name=request.role_name),
+            role=role,
         )
         self.code_repository.add(code)
 
@@ -92,17 +96,10 @@ class DormybobaCoreServicer(apiv1grpc.DormybobaCoreServicer):
         if code is None:
             return context.abort_with_status(grpc.StatusCode.INVALID_ARGUMENT)
 
-        user=entity.DormybobaUser(
-            user_id=request.user_id,
-            role=entity.DormybobaRole(role_id=request.role_id),
-            institute=entity.Institute(institute_id=request.institute_id),
-            academic_type=entity.AcademicType(type_id=request.academic_type_id),
-            year=request.year,
-            group=request.group,
-        )
+        user = entity.DormybobaUser.from_api(request.user)
 
-        self.user_repository.add(user)        
-        return Empty()
+        user = self.user_repository.add(user)        
+        return apiv1.CreateUserResponse(user=user.to_api())
 
     def GetUserById(
         self,
@@ -179,7 +176,7 @@ class DormybobaCoreServicer(apiv1grpc.DormybobaCoreServicer):
         user = self.user_repository.getById(request.user_id)
         queue = self.queue_repository.addUser(queue, user)
 
-        is_active = queue.active_user.user_id == user.user_id
+        is_active = (queue.active_user is not None) and (queue.active_user.user_id == user.user_id)
 
         return apiv1.AddPersonToQueueResponse(is_active=is_active)
     
@@ -202,7 +199,7 @@ class DormybobaCoreServicer(apiv1grpc.DormybobaCoreServicer):
         queue = self.queue_repository.moveQueue(queue)
 
         is_queue_empty = queue.active_user is None
-        active_user_id = queue.active_user.user_id
+        active_user_id = None if is_queue_empty else queue.active_user.user_id
 
         return apiv1.PersonCompleteQueueResponse(
             is_queue_empty=is_queue_empty,
@@ -215,6 +212,7 @@ class DormybobaCoreServicer(apiv1grpc.DormybobaCoreServicer):
         context: grpc.ServicerContext,
     ):
         defect = entity.Defect.from_api(request.defect)
+        defect.defect_id = "DD" + str(random.randint(1000, 9999))
         self.sheet_repository.add(defect)
 
         return apiv1.CreateDefectResponse(
@@ -246,7 +244,8 @@ class DormybobaCoreServicer(apiv1grpc.DormybobaCoreServicer):
         request: apiv1.AssignDefectRequest,
         context: grpc.ServicerContext,
     ):
-        user = self.user_repository.listByRole("admin")[0]
+        role = self.role_repository.getByName("admin")
+        user = self.user_repository.listByRole(role)[0]
         return apiv1.AssignDefectResponse(assigned_user_id=user.user_id)
 
     async def MailingEvent(
@@ -287,6 +286,7 @@ class DormybobaCoreServicer(apiv1grpc.DormybobaCoreServicer):
 
 async def serve(engine: Engine, worksheet: Worksheet):
     user_repository = SqlAlchemyDormybobaUserRepository(engine)
+    role_repository = SqlAlchemyDormybobaRoleRepository(engine)
     code_repository = SqlAlchemyVerificationCodeRepository(engine)
     institute_repository = SqlAlchemyInstituteRepository(engine)
     academic_type_repository = SqlAlchemyAcademicTypeRepository(engine)
@@ -296,6 +296,7 @@ async def serve(engine: Engine, worksheet: Worksheet):
 
     servicer = DormybobaCoreServicer(
         user_repository=user_repository,
+        role_repository=role_repository,
         code_repository=code_repository,
         institute_repository=institute_repository,
         academic_type_repository=academic_type_repository,

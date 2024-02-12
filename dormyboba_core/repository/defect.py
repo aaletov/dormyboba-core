@@ -2,6 +2,7 @@ from typing import Optional, List
 import abc
 from gspread import Cell, Worksheet
 import dormyboba_api.v1api_pb2 as apiv1
+from .. import model
 from .. import entity
 
 class DefectRepository(metaclass=abc.ABCMeta):
@@ -39,16 +40,15 @@ class GsheetDefectRepository(DefectRepository):
         self.worksheet.update_cells(irange)
         return defect
     
-    def getById(self, defect_id: int) -> Optional[entity.Defect]:
+    def getById(self, defect_id: str) -> Optional[entity.Defect]:
         column = self.worksheet.col_values(1)
         if defect_id not in column:
             return None
 
         i = column.index(defect_id) + 1
         irange: List[Cell] = self.worksheet.range(i, 1, i+4, 5)
-
-        values = tuple([cell.value for cell in irange])
-        return entity.Defect.from_model(values)
+        model_defect = model.from_irange(irange)
+        return entity.Defect.from_model(model_defect)
     
     def update(self, defect: entity.Defect) -> entity.Defect:
         column = self.worksheet.col_values(1)

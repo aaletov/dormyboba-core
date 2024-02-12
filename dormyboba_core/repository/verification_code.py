@@ -29,7 +29,7 @@ class SqlAlchemyVerificationCodeRepository(VerificationCodeRepository):
     def add(self, verification_code: entity.VerificationCode) -> None:
         with Session(self.engine) as session, session.begin():
             stmt = select(model.DormybobaRole).where(
-                model.role_name == verification_code.role.role_name,
+                model.DormybobaRole.role_name == verification_code.role.role_name,
             )
             res = session.execute(stmt).first()
             role: model.DormybobaRole = res[0]
@@ -37,14 +37,15 @@ class SqlAlchemyVerificationCodeRepository(VerificationCodeRepository):
                 code=verification_code.verification_code,
                 role_id=role.role_id,
             )
+            session.execute(stmt)
 
     def getByCode(self, code: int) -> Optional[entity.VerificationCode]:
         with Session(self.engine) as session, session.begin():
             stmt = select(model.VerificationCode).where(
-                model.VerificationCode.verification_code == code,
+                model.VerificationCode.code == code,
             )
             res = session.execute(stmt).first()
-            return None if res is None else res[0]
+            return None if res is None else entity.VerificationCode.from_model(res[0])
     
     def getRole(self, verification_code: entity.VerificationCode) -> Optional[entity.DormybobaRole]:
         with Session(self.engine) as session, session.begin():
