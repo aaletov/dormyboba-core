@@ -141,11 +141,14 @@ python-versions = ">=3.11,<4.0"
 files = []
 develop = false
 
+[package.dependencies]
+protobuf = "^4.25.2"
+
 [package.source]
 type = "git"
 url = "https://github.com/aaletov/dormyboba-api.git"
 reference = "main"
-resolved_reference = "d83c94b71947472a6bc410424b47f18a7368619c"
+resolved_reference = "311dd548ba1129fabf742cb968c2e1d5707a5514"
 subdirectory = "api/generated/python"
 
 [[package]]

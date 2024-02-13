@@ -14,4 +14,10 @@ init-db:
 	PGPASSWORD=${PG_PASSWORD} psql -h ${PG_HOST} -U ${PG_USER} -f db/drop.sql
 	PGPASSWORD=${PG_PASSWORD} psql -h ${PG_HOST} -U ${PG_USER} -f db/schema.sql
 	PGPASSWORD=${PG_PASSWORD} psql -h ${PG_HOST} -U ${PG_USER} -f db/data.sql
+
+image_time=$(shell date +%s)
+.PHONY: docker-image
+docker-image:
+	docker build -t dormyboba-core:${image_time} .
+	docker tag dormyboba-core:${image_time} dormyboba-core:latest
 	
