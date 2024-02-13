@@ -136,7 +136,17 @@ class DormybobaCoreServicer(apiv1grpc.DormybobaCoreServicer):
         return apiv1.GetInstituteByNameResponse(
             institute=institute.to_api(),
         )
-    
+
+    def GetAllAcademicTypes(
+        self,
+        request: None,
+        context: grpc.ServicerContext,
+    ):
+        academic_types = self.academic_type_repository.list()
+        return apiv1.GetAllAcademicTypesResponse(
+            academic_types=list([t.to_api() for t in academic_types])
+        )
+
     def GetAcademicTypeByName(
         self,
         request: apiv1.GetAcademicTypeByNameRequest,

@@ -1,4 +1,4 @@
-from typing import Optional
+from typing import Optional, List
 import abc
 from sqlalchemy import Engine, select
 from sqlalchemy.orm import Session
@@ -9,6 +9,10 @@ class AcademicTypeRepository(metaclass=abc.ABCMeta):
     """An interface to academic type repository"""
 
     @abc.abstractmethod
+    def list(self) -> List[entity.AcademicType]:
+        raise NotImplementedError()
+    
+    @abc.abstractmethod
     def getByName(self, name: str) -> Optional[entity.AcademicType]:
         raise NotImplementedError()
     
@@ -17,6 +21,12 @@ class SqlAlchemyAcademicTypeRepository(AcademicTypeRepository):
 
     def __init__(self, engine: Engine):
         self.engine = engine
+
+    def list(self) -> List[entity.AcademicType]:
+        with Session(self.engine) as session, session.begin():
+            stmt = select(model.AcademicType)
+            rows = session.execute(stmt)
+            return list([entity.AcademicType.from_model(row[0]) for row in rows])
 
     def getByName(self, name: str) -> Optional[entity.AcademicType]:
         with Session(self.engine) as session, session.begin():
