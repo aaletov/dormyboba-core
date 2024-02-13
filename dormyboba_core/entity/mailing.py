@@ -30,7 +30,7 @@ class Mailing:
             type_id=api_mailing.academic_type_id,
             type_name=None,
         )
-        year = None if not(api_mailing.HasField("year")) else year
+        year = None if not(api_mailing.HasField("year")) else api_mailing.year
         return Mailing(
             mailing_id=mailing_id,
             theme=api_mailing.theme,
@@ -38,7 +38,7 @@ class Mailing:
             at=at,
             institute=institute,
             academic_type=academic_type,
-            year=api_mailing.year,
+            year=year,
             is_event_generated=None,
         )
     
@@ -82,15 +82,21 @@ class Mailing:
         )
     
     def to_model(self) -> model.Mailing:
-        model_institute = None if self.institute is None else self.institute.to_model()
-        model_academic_type = None if self.academic_type is None else self.academic_type.to_model() 
+        institute_id = None
+        if self.institute is not None:
+            institute_id = self.institute.to_model().institute_id
+        
+        academic_type_id = None
+        if self.academic_type is not None:
+            academic_type_id = self.academic_type.to_model().type_id
+
         return model.Mailing(
             mailing_id=self.mailing_id,
             theme=self.theme,
             mailing_text=self.mailing_text,
             at=self.at,
-            institute=model_institute,
-            academic_type=model_academic_type,
+            institute_id=institute_id,
+            academic_type_id=academic_type_id,
             enroll_year=self.year,
             is_event_generated=self.is_event_generated,
         )
