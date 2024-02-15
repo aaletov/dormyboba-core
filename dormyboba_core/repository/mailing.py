@@ -63,6 +63,10 @@ class SqlAlchemyMailingRepository(MailingRepository):
                 conditions.append(
                     model.DormybobaUser.enroll_year == model_mailing.enroll_year,
                 )
+            if model_mailing.academic_group is not None:
+                conditions.append(
+                    model.DormybobaUser.academic_group == model_mailing.academic_group,
+                )
 
             stmt = select(model.DormybobaUser).where(
                 and_(*conditions),
