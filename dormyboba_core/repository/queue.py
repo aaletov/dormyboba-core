@@ -12,19 +12,19 @@ class QueueRepository(metaclass=abc.ABCMeta):
     @abc.abstractmethod
     def add(self, queue: entity.Queue) -> entity.Queue:
         raise NotImplementedError()
-    
+
     @abc.abstractmethod
     def getById(self, queue_id: int) -> Optional[entity.Queue]:
         raise NotImplementedError()
-    
+
     @abc.abstractmethod
     def update(self, queue: entity.Queue) -> entity.Queue:
         raise NotImplementedError()
-    
+
     @abc.abstractmethod
     def addUser(self, queue: entity.Queue, user: entity.DormybobaUser) -> entity.Queue:
         raise NotImplementedError()
-    
+
     @abc.abstractmethod
     def deleteUser(self, queue: entity.Queue, user: entity.DormybobaUser) -> entity.Queue:
         raise NotImplementedError()
@@ -32,7 +32,7 @@ class QueueRepository(metaclass=abc.ABCMeta):
     @abc.abstractmethod
     def moveQueue(self, queue: entity.Queue) -> entity.Queue:
         raise NotImplementedError()
-    
+
     @abc.abstractmethod
     def getEvent(self) -> Optional[entity.QueueEvent]:
         raise NotImplementedError()
@@ -55,11 +55,11 @@ class SqlAlchemyQueueRepository(QueueRepository):
             q = q.filter(model.Queue.queue_id == queue_id)
             res = q.one()
             return entity.Queue.from_model(res)
-    
+
     def update(self, queue: entity.Queue) -> entity.Queue:
         with Session(self.engine) as session, session.begin():
             session.merge(queue.to_model())
-    
+
     def addUser(self, queue: entity.Queue, user: entity.DormybobaUser) -> entity.Queue:
         with Session(self.engine) as session, session.begin():
             stmt = select(model.Queue).where(
@@ -84,8 +84,10 @@ class SqlAlchemyQueueRepository(QueueRepository):
                     joined=datetime.now(),
                 )
             session.execute(stmt)
+            session.flush()
+            session.refresh(model_queue)
             return entity.Queue.from_model(model_queue)
-    
+
     def deleteUser(self, queue: entity.Queue, user: entity.DormybobaUser) -> None:
         with Session(self.engine) as session, session.begin():
             stmt = delete(model.QueueToUser).where(
