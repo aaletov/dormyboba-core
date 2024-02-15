@@ -30,7 +30,7 @@ CREATE TABLE "dormyboba_user" (
   "academic_type_id" integer NOT NULL REFERENCES "academic_type" ("type_id"),
   "institute_id" integer NOT NULL REFERENCES "institute" ("institute_id"),
   "enroll_year" integer NOT NULL,
-  "academic_group" varchar(5) NOT NULL
+  "academic_group" varchar(20) NOT NULL
 );
 
 CREATE TABLE "mailing" (
@@ -41,6 +41,7 @@ CREATE TABLE "mailing" (
   "academic_type_id" integer REFERENCES "academic_type" ("type_id"),
   "institute_id" integer REFERENCES "institute" ("institute_id"),
   "enroll_year" integer,
+  "academic_group" varchar(20) NOT NULL,
   "is_event_generated" boolean NOT NULL DEFAULT FALSE
 );
 

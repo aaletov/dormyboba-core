@@ -30,7 +30,7 @@ INSERT INTO public.dormyboba_user(
         enroll_year,
         academic_group
     )
-    SELECT 608713, role_id, 51, 3, 0, '00104'
+    SELECT 608713, role_id, 51, 3, 0, '5130904/00104'
     FROM public.dormyboba_role WHERE role_name = 'admin';
 
 INSERT INTO public.dormyboba_user(
@@ -41,5 +41,5 @@ INSERT INTO public.dormyboba_user(
         enroll_year,
         academic_group
     )
-    SELECT 507316373, role_id, 51, 3, 0, '00104'
+    SELECT 507316373, role_id, 51, 3, 0, '5130904/00104'
     FROM public.dormyboba_role WHERE role_name = 'admin';
