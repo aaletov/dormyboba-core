@@ -16,6 +16,7 @@ class Mailing:
     institute: Optional[entity.Institute]
     academic_type: Optional[entity.AcademicType]
     year: Optional[int]
+    group: Optional[str]
     is_event_generated: Optional[bool]
 
     @staticmethod
@@ -31,6 +32,7 @@ class Mailing:
             type_name=None,
         )
         year = None if not(api_mailing.HasField("year")) else api_mailing.year
+        group = None if not(api_mailing.HasField("group")) else api_mailing.group
         return Mailing(
             mailing_id=mailing_id,
             theme=api_mailing.theme,
@@ -39,6 +41,7 @@ class Mailing:
             institute=institute,
             academic_type=academic_type,
             year=year,
+            group=group,
             is_event_generated=None,
         )
 
@@ -59,6 +62,7 @@ class Mailing:
             institute_id=instutute_id,
             academic_type_id=academic_type_id,
             year=self.year,
+            group=self.group,
         )
 
     @staticmethod
@@ -78,6 +82,7 @@ class Mailing:
             institute=institute,
             academic_type=academic_type,
             year=model_mailing.enroll_year,
+            group=model_mailing.academic_group,
             is_event_generated=model_mailing.is_event_generated,
         )
 
@@ -98,6 +103,7 @@ class Mailing:
             institute_id=institute_id,
             academic_type_id=academic_type_id,
             enroll_year=self.year,
+            academic_group=self.group,
             is_event_generated=self.is_event_generated,
         )
 
