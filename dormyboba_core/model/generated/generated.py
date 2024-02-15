@@ -62,7 +62,7 @@ class DormybobaUser(Base):
     academic_type_id: Mapped[int] = mapped_column(Integer)
     institute_id: Mapped[int] = mapped_column(Integer)
     enroll_year: Mapped[int] = mapped_column(Integer)
-    academic_group: Mapped[str] = mapped_column(String(5))
+    academic_group: Mapped[str] = mapped_column(String(20))
 
     academic_type: Mapped['AcademicType'] = relationship('AcademicType', back_populates='dormyboba_user')
     institute: Mapped['Institute'] = relationship('Institute', back_populates='dormyboba_user')
@@ -80,6 +80,7 @@ class Mailing(Base):
     )
 
     mailing_id: Mapped[int] = mapped_column(Integer, primary_key=True)
+    academic_group: Mapped[str] = mapped_column(String(20))
     is_event_generated: Mapped[bool] = mapped_column(Boolean, server_default=text('false'))
     theme: Mapped[Optional[str]] = mapped_column(String(256))
     mailing_text: Mapped[Optional[str]] = mapped_column(Text)

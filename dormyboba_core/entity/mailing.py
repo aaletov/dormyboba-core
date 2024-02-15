@@ -16,6 +16,7 @@ class Mailing:
     institute: Optional[entity.Institute]
     academic_type: Optional[entity.AcademicType]
     year: Optional[int]
+    group: Optional[str]
     is_event_generated: Optional[bool]
 
     @staticmethod
@@ -31,6 +32,7 @@ class Mailing:
             type_name=None,
         )
         year = None if not(api_mailing.HasField("year")) else api_mailing.year
+        group = None if not(api_mailing.HasField("group")) else api_mailing.group
         return Mailing(
             mailing_id=mailing_id,
             theme=api_mailing.theme,
@@ -39,9 +41,10 @@ class Mailing:
             institute=institute,
             academic_type=academic_type,
             year=year,
+            group=group,
             is_event_generated=None,
         )
-    
+
     def to_api(self) -> apiv1.Mailing:
         at = None
         if self.at is not None:
@@ -49,8 +52,8 @@ class Mailing:
             at.FromDatetime(self.at)
 
         instutute_id = None if self.institute is None else self.institute.institute_id
-        academic_type_id = None if self.academic_type is None else self.academic_type.type_id 
-             
+        academic_type_id = None if self.academic_type is None else self.academic_type.type_id
+
         return apiv1.Mailing(
             mailing_id=self.mailing_id,
             theme=self.theme,
@@ -59,13 +62,14 @@ class Mailing:
             institute_id=instutute_id,
             academic_type_id=academic_type_id,
             year=self.year,
+            group=self.group,
         )
-    
+
     @staticmethod
     def from_model(model_mailing: model.Mailing) -> 'Mailing':
         institute = None
         if model_mailing.institute is not None:
-            entity.Institute.from_model(model_mailing.institute) 
+            entity.Institute.from_model(model_mailing.institute)
         academic_type = None
         if model_mailing.academic_type is not None:
             entity.AcademicType.from_model(model_mailing.academic_type)
@@ -78,14 +82,15 @@ class Mailing:
             institute=institute,
             academic_type=academic_type,
             year=model_mailing.enroll_year,
+            group=model_mailing.academic_group,
             is_event_generated=model_mailing.is_event_generated,
         )
-    
+
     def to_model(self) -> model.Mailing:
         institute_id = None
         if self.institute is not None:
             institute_id = self.institute.to_model().institute_id
-        
+
         academic_type_id = None
         if self.academic_type is not None:
             academic_type_id = self.academic_type.to_model().type_id
@@ -98,6 +103,7 @@ class Mailing:
             institute_id=institute_id,
             academic_type_id=academic_type_id,
             enroll_year=self.year,
+            academic_group=self.group,
             is_event_generated=self.is_event_generated,
         )
 
