@@ -12,7 +12,7 @@ class MailingRepository(metaclass=abc.ABCMeta):
     @abc.abstractmethod
     def add(self, mailing: entity.Mailing) -> entity.Mailing:
         raise NotImplementedError()
-    
+
     @abc.abstractmethod
     def getEvent(self) -> Optional[entity.MailingEvent]:
         raise NotImplementedError()
@@ -20,7 +20,7 @@ class MailingRepository(metaclass=abc.ABCMeta):
     @abc.abstractmethod
     def update(self, mailing: entity.Mailing) -> None:
         raise NotImplementedError()
-    
+
 class SqlAlchemyMailingRepository(MailingRepository):
     """SqlAlchemy implementation of mailing repository"""
 
@@ -32,7 +32,7 @@ class SqlAlchemyMailingRepository(MailingRepository):
         with Session(self.engine) as session, session.begin():
             session.add(model_mailing)
             return entity.Mailing.from_model(model_mailing)
-    
+
     def getEvent(self) -> Optional[entity.MailingEvent]:
         with Session(self.engine) as session, session.begin():
             stmt = select(model.Mailing).where(
@@ -48,7 +48,7 @@ class SqlAlchemyMailingRepository(MailingRepository):
 
             if res is None:
                 return None
-            
+
             model_mailing: model.Mailing = res[0]
             conditions = []
             if model_mailing.institute is not None:
@@ -78,7 +78,7 @@ class SqlAlchemyMailingRepository(MailingRepository):
                 mailing=entity.Mailing.from_model(model_mailing),
                 users=list([entity.DormybobaUser.from_model(row[0]) for row in rows])
             )
-    
+
     def update(self, mailing: entity.Mailing) -> None:
         model_mailing = mailing.to_model()
         with Session(self.engine) as session, session.begin():
