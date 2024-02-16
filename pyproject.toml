@@ -20,6 +20,7 @@ gspread = "^6.0.0"
 sqlalchemy = "^2.0.25"
 dormyboba-api = {git = "https://github.com/aaletov/dormyboba-api.git", rev = "main", subdirectory = "api/generated/python"}
 docopt = "^0.6.2"
+fastapi = {extras = ["all"], version = "^0.109.2"}
 
 
 [build-system]
