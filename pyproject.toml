@@ -19,6 +19,7 @@ grpcio-tools = "^1.60.1"
 gspread = "^6.0.0"
 sqlalchemy = "^2.0.25"
 dormyboba-api = {git = "https://github.com/aaletov/dormyboba-api.git", rev = "main", subdirectory = "api/generated/python"}
+docopt = "^0.6.2"
 
 
 [build-system]

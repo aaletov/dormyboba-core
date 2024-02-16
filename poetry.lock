@@ -133,6 +133,16 @@ files = [
 ]
 
 [[package]]
+name = "docopt"
+version = "0.6.2"
+description = "Pythonic argument parser, that will make you smile"
+optional = false
+python-versions = "*"
+files = [
+    {file = "docopt-0.6.2.tar.gz", hash = "sha256:49b3a825280bd66b3aa83585ef59c4a8c82f2c8a522dbe754a8bc8d08c85c491"},
+]
+
+[[package]]
 name = "dormyboba-api"
 version = "0.1.0"
 description = ""
@@ -980,4 +990,4 @@ zstd = ["zstandard (>=0.18.0)"]
 [metadata]
 lock-version = "2.0"
 python-versions = ">=3.11,<4.0"
-content-hash = "68b3e352ff9713a78607f12bb7d4cd6fdf6a0a57e199bbca54cc03f442df1e74"
+content-hash = "69edba619d7c80ef21e65f6166f88d1ccc1fe19c3191db57ac23339c3c0871e7"

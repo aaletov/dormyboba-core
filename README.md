@@ -3,8 +3,9 @@ Dormyboba core service
 
 ## Local development
 
-Change this line
+Необходимо указать флаг `--config-dir`, соответствующий директории, в которой
+лежат конфиги
 
 ```
-CONFIG_DIR = Path(__file__).resolve().parent.parent / "config"
+poetry run python3 -m dormyboba_core --config-dir=./config
 ```
