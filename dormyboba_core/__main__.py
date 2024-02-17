@@ -11,9 +11,6 @@ Options:
 """
 from docopt import docopt
 import warnings
-from typing import Any
-import logging
-import yaml
 from pathlib import Path
 import asyncio
 from sqlalchemy import create_engine
@@ -23,8 +20,11 @@ from contextlib import asynccontextmanager
 from fastapi import FastAPI
 from .config import parse_config, DormybobaConfig
 from .server import serve
+from .logger import setup_logging
 
 warnings.filterwarnings("ignore", category=SyntaxWarning)
+
+setup_logging()
 
 ARGUMENTS = docopt(__doc__, version='DormybobaCore')
 CONFIG_PATH = Path(ARGUMENTS["--config-dir"]).resolve()

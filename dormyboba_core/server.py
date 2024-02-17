@@ -34,7 +34,7 @@ from .repository import (
 
 class DormybobaCoreServicer(apiv1grpc.DormybobaCoreServicer):
     """Provides methods that implement functionality of dormyboba-core server."""
-    
+
     def __init__(
         self,
         user_repository: SqlAlchemyDormybobaUserRepository,
@@ -74,7 +74,7 @@ class DormybobaCoreServicer(apiv1grpc.DormybobaCoreServicer):
         return apiv1.GenerateVerificationCodeResponse(
             verification_code=code.verification_code,
         )
-    
+
     def GetRoleByVerificationCode(
         self,
         request: apiv1.GetRoleByVerificationCodeRequest,
@@ -83,7 +83,7 @@ class DormybobaCoreServicer(apiv1grpc.DormybobaCoreServicer):
         code = self.code_repository.getByCode(request.verification_code)
         if code is None:
             return context.abort_with_status(grpc.StatusCode.INVALID_ARGUMENT)
-        
+
         api_role = code.role.to_api()
         return apiv1.GetRoleByVerificationCodeResponse(role=api_role)
 
@@ -98,7 +98,7 @@ class DormybobaCoreServicer(apiv1grpc.DormybobaCoreServicer):
 
         user = entity.DormybobaUser.from_api(request.user)
 
-        user = self.user_repository.add(user)        
+        user = self.user_repository.add(user)
         return apiv1.CreateUserResponse(user=user.to_api())
 
     def GetUserById(
@@ -110,7 +110,7 @@ class DormybobaCoreServicer(apiv1grpc.DormybobaCoreServicer):
 
         if user is None:
             return apiv1.GetUserByIdResponse()
-        
+
         return apiv1.GetUserByIdResponse(
             user=user.to_api(),
         )
@@ -156,7 +156,7 @@ class DormybobaCoreServicer(apiv1grpc.DormybobaCoreServicer):
         return apiv1.GetAcademicTypeByNameResponse(
             academic_type=academic_type.to_api(),
         )
-    
+
     def CreateMailing(
         self,
         request: apiv1.CreateMailingRequest,
@@ -176,7 +176,7 @@ class DormybobaCoreServicer(apiv1grpc.DormybobaCoreServicer):
     ):
         queue = self.queue_repository.add(entity.Queue.from_api(request.queue))
         return apiv1.CreateQueueResponse(queue=queue.to_api())
-    
+
     def AddPersonToQueue(
         self,
         request: apiv1.AddPersonToQueueRequest,
@@ -189,7 +189,7 @@ class DormybobaCoreServicer(apiv1grpc.DormybobaCoreServicer):
         is_active = (queue.active_user is not None) and (queue.active_user.user_id == user.user_id)
 
         return apiv1.AddPersonToQueueResponse(is_active=is_active)
-    
+
     def RemovePersonFromQueue(
         self,
         request: apiv1.RemovePersonFromQueueRequest,
@@ -199,7 +199,7 @@ class DormybobaCoreServicer(apiv1grpc.DormybobaCoreServicer):
         user = self.user_repository.getById(request.user_id)
         self.queue_repository.deleteUser(queue, user)
         return Empty()
-    
+
     def PersonCompleteQueue(
         self,
         request: apiv1.PersonCompleteQueueRequest,
@@ -215,7 +215,7 @@ class DormybobaCoreServicer(apiv1grpc.DormybobaCoreServicer):
             is_queue_empty=is_queue_empty,
             active_user_id=active_user_id,
         )
-    
+
     def CreateDefect(
         self,
         request: apiv1.CreateDefectRequest,
@@ -248,7 +248,7 @@ class DormybobaCoreServicer(apiv1grpc.DormybobaCoreServicer):
         defect = entity.Defect.from_api(request.defect)
         self.sheet_repository.update(defect)
         return Empty()
-    
+
     def AssignDefect(
         self,
         request: apiv1.AssignDefectRequest,
@@ -263,8 +263,9 @@ class DormybobaCoreServicer(apiv1grpc.DormybobaCoreServicer):
         request: Any,
         context: grpc.ServicerContext,
     ):
+        logger = logging.getLogger('dormyboba')
         while True:
-            logging.debug("Checking mailing events...")
+            logger.debug("Checking mailing events...")
             try:
                 event = self.mailing_repository.getEvent()
 
@@ -274,7 +275,7 @@ class DormybobaCoreServicer(apiv1grpc.DormybobaCoreServicer):
 
                 yield apiv1.MailingEventResponse(event=event.to_api())
             except Exception as exc:
-                logging.exception(exc)
+                logger.exception(exc)
 
     async def QueueEvent(
         self,
@@ -289,12 +290,14 @@ class DormybobaCoreServicer(apiv1grpc.DormybobaCoreServicer):
                 if event is None:
                     await asyncio.sleep(15)
                     continue
-                
+
                 yield apiv1.QueueEventResponse(event=event.to_api())
             except Exception as exc:
                 logging.exception(exc)
 
 async def serve(engine: Engine, worksheet: Worksheet):
+    logger = logging.getLogger('dormyboba')
+
     user_repository = SqlAlchemyDormybobaUserRepository(engine)
     role_repository = SqlAlchemyDormybobaRoleRepository(engine)
     code_repository = SqlAlchemyVerificationCodeRepository(engine)
@@ -318,7 +321,7 @@ async def serve(engine: Engine, worksheet: Worksheet):
     server = grpc.aio.server(futures.ThreadPoolExecutor(max_workers=10))
     apiv1grpc.add_DormybobaCoreServicer_to_server(servicer, server)
 
-    logging.info("Starting server...")
+    logger.info("Starting server...")
     server.add_insecure_port("[::]:50051")
     await server.start()
     await server.wait_for_termination()
