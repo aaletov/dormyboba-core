@@ -19,7 +19,18 @@ import uvicorn
 from contextlib import asynccontextmanager
 from fastapi import FastAPI
 from .config import parse_config, DormybobaConfig
-from .server import serve
+from .repository import (
+    SqlAlchemyDormybobaUserRepository,
+    SqlAlchemyDormybobaRoleRepository,
+    SqlAlchemyVerificationCodeRepository,
+    SqlAlchemyInstituteRepository,
+    SqlAlchemyAcademicTypeRepository,
+    GsheetDefectRepository,
+    SqlAlchemyMailingRepository,
+    SqlAlchemyQueueRepository,
+)
+from .service import DormybobaCoreServicer
+from .server import DormybobaServer
 from .logger import setup_logging
 
 warnings.filterwarnings("ignore", category=SyntaxWarning)
@@ -39,9 +50,31 @@ def get_worksheet(config: DormybobaConfig) -> None:
 
 WORKSHEET = get_worksheet(CONFIG)
 
+user_repository = SqlAlchemyDormybobaUserRepository(ENGINE)
+role_repository = SqlAlchemyDormybobaRoleRepository(ENGINE)
+code_repository = SqlAlchemyVerificationCodeRepository(ENGINE)
+institute_repository = SqlAlchemyInstituteRepository(ENGINE)
+academic_type_repository = SqlAlchemyAcademicTypeRepository(ENGINE)
+mailing_repository = SqlAlchemyMailingRepository(ENGINE)
+queue_repository = SqlAlchemyQueueRepository(ENGINE)
+sheet_repository = GsheetDefectRepository(WORKSHEET)
+
+dormyboba_servicer = DormybobaCoreServicer(
+    user_repository=user_repository,
+    role_repository=role_repository,
+    code_repository=code_repository,
+    institute_repository=institute_repository,
+    academic_type_repository=academic_type_repository,
+    mailing_repository=mailing_repository,
+    queue_repository=queue_repository,
+    sheet_repository=sheet_repository,
+)
+
+dormyboba_server = DormybobaServer(dormyboba_servicer)
+
 @asynccontextmanager
 async def lifespan(app: FastAPI):
-    asyncio.create_task(serve(ENGINE, WORKSHEET))
+    asyncio.create_task(dormyboba_server.run())
     yield
 
 app = FastAPI(lifespan=lifespan)
