@@ -17,7 +17,11 @@ from sqlalchemy import create_engine
 import gspread
 import uvicorn
 from contextlib import asynccontextmanager
-from fastapi import FastAPI
+import importlib.resources
+from fastapi import FastAPI, Request
+from fastapi.responses import HTMLResponse
+from fastapi.staticfiles import StaticFiles
+from fastapi.templating import Jinja2Templates
 from .config import parse_config, DormybobaConfig
 from .repository import (
     SqlAlchemyDormybobaUserRepository,
@@ -79,9 +83,20 @@ async def lifespan(app: FastAPI):
 
 app = FastAPI(lifespan=lifespan)
 
+path = Path(importlib.resources.files()).resolve()
+
+app.mount("/static", StaticFiles(directory=(path / "static")), name="static")
+templates = Jinja2Templates(directory=(path / "templates"))
+
 @app.get("/")
 async def read_root():
-    return {"Hello": "World"}
+    return {"Dormyboba": "Core"}
+
+@app.get("/invite/widget", response_class=HTMLResponse)
+async def invite_widget(request: Request):
+    return templates.TemplateResponse(
+        request=request, name="widget.html",
+    )
 
 if __name__ == "__main__":
-    uvicorn.run(app, host="0.0.0.0", port=8000)
+    uvicorn.run("dormyboba_core.__main__:app", host="0.0.0.0", port=8000, workers=2)

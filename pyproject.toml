@@ -8,6 +8,10 @@ readme = "README.md"
 packages = [
     { include = "dormyboba_core", from = "." },
 ]
+include = [
+    "dormyboba_core/static",
+    "dormyboba_core/templates",
+]
 
 [tool.poetry.dependencies]
 python = ">=3.11,<4.0"
