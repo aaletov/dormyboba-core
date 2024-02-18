@@ -11,6 +11,7 @@ Options:
 """
 from docopt import docopt
 import warnings
+import logging
 from pathlib import Path
 import asyncio
 from sqlalchemy import create_engine
@@ -18,7 +19,8 @@ import gspread
 import uvicorn
 from contextlib import asynccontextmanager
 import importlib.resources
-from fastapi import FastAPI, Request
+from pydantic import BaseModel
+from fastapi import FastAPI, Request, status
 from fastapi.responses import HTMLResponse
 from fastapi.staticfiles import StaticFiles
 from fastapi.templating import Jinja2Templates
@@ -92,11 +94,23 @@ templates = Jinja2Templates(directory=(path / "templates"))
 async def read_root():
     return {"Dormyboba": "Core"}
 
+logger = logging.getLogger("dormyboba")
+
 @app.get("/invite/widget", response_class=HTMLResponse)
-async def invite_widget(request: Request):
+async def invite_widget(request: Request, token: str):
+    logger.info(token)
     return templates.TemplateResponse(
         request=request, name="widget.html",
     )
+
+class UserToken(BaseModel):
+    token: str
+    userId: int
+
+@app.post("/invite/registerUser", status_code=status.HTTP_201_CREATED)
+async def invite_register_user(user_token: UserToken):
+    logger.info(user_token)
+    return
 
 if __name__ == "__main__":
     uvicorn.run("dormyboba_core.__main__:app", host="0.0.0.0", port=8000, workers=2)

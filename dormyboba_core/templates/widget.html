@@ -31,20 +31,6 @@
         }
       });
     });
-    VK.Observer.subscribe("widgets.allowMessagesFromCommunity.denied", function f(userId) {
-      console.log(userId);
-      console.log("denied");
-      fetch("/invite/registerUser", {
-        method: "POST",
-        body: JSON.stringify({
-          token: token,
-          userId: userId,
-        }),
-        headers: {
-          "Content-type": "application/json; charset=UTF-8"
-        }
-      });
-    });
   </script>
 
 </body>
