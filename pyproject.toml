@@ -10,7 +10,7 @@ packages = [
 ]
 
 [tool.poetry.dependencies]
-python = ">=3.11,<4.0"
+python = ">=3.10,<4.0"
 sqlacodegen = "3.0.0rc3"
 psycopg2-binary = "^2.9.9"
 pyyaml = "^6.0.1"
@@ -23,6 +23,8 @@ dormyboba-api = {git = "https://github.com/aaletov/dormyboba-api.git", rev = "ma
 
 [tool.poetry.group.dev.dependencies]
 pytest = "^8.0.1"
+coverage = "^7.4.1"
+pytest-cov = "^4.1.0"
 
 [build-system]
 requires = ["poetry-core"]

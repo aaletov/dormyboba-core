@@ -1,3 +1,4 @@
+from __future__ import annotations
 from dataclasses import dataclass
 import dormyboba_api.v1api_pb2 as apiv1
 from .dormyboba_user import DormybobaRole
