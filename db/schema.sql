@@ -19,18 +19,14 @@ CREATE TABLE "dormyboba_role" (
   "role_name" varchar(50) UNIQUE
 );
 
-CREATE TABLE "verification_code" (
-  "code" integer PRIMARY KEY,
-  "role_id" integer NOT NULL REFERENCES "dormyboba_role" ("role_id")
-);
-
 CREATE TABLE "dormyboba_user" (
   "user_id" integer PRIMARY KEY,
   "role_id" integer NOT NULL REFERENCES "dormyboba_role" ("role_id"),
-  "academic_type_id" integer NOT NULL REFERENCES "academic_type" ("type_id"),
-  "institute_id" integer NOT NULL REFERENCES "institute" ("institute_id"),
-  "enroll_year" integer NOT NULL,
-  "academic_group" varchar(20) NOT NULL
+  "academic_type_id" integer REFERENCES "academic_type" ("type_id"),
+  "institute_id" integer REFERENCES "institute" ("institute_id"),
+  "enroll_year" integer,
+  "academic_group" varchar(20),
+  "registration_complete" boolean NOT NULL
 );
 
 CREATE TABLE "mailing" (

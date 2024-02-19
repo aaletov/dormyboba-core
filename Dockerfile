@@ -9,4 +9,4 @@ COPY --from=builder /usr/src/dormyboba-core/dist ./
 COPY config /config
 RUN export WHL=$(ls *.whl) && pip install ./${WHL}
 EXPOSE 50051 
-CMD ["python3", "-m", "dormyboba_core"]
+CMD ["python3", "-m", "dormyboba_core", "--config-dir", "/config"]
