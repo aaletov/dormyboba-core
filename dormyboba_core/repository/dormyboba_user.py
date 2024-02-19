@@ -15,7 +15,7 @@ class DormybobaUserRepository(metaclass=abc.ABCMeta):
     @abc.abstractmethod
     def add(self, user: entity.DormybobaUser) -> entity.DormybobaUser:
         raise NotImplementedError()
-    
+
     @abc.abstractmethod
     def getById(self, user_id: int) -> Optional[entity.DormybobaUser]:
         raise NotImplementedError()
@@ -23,7 +23,7 @@ class DormybobaUserRepository(metaclass=abc.ABCMeta):
     @abc.abstractmethod
     def listByRole(self, role: entity.DormybobaRole) -> List[entity.DormybobaUser]:
         raise NotImplementedError()
-    
+
 class SqlAlchemyDormybobaUserRepository(DormybobaUserRepository):
     """SqlAlchemy implementation of dormyboba user repository"""
 
@@ -32,14 +32,21 @@ class SqlAlchemyDormybobaUserRepository(DormybobaUserRepository):
 
     def list(self) -> List[entity.DormybobaUser]:
         return super().list()
-    
+
     def add(self, user: entity.DormybobaUser) -> entity.DormybobaUser:
         model_user = user.to_model()
         with Session(self.engine) as session, session.begin():
             session.add(model_user)
             session.flush()
             return entity.DormybobaUser.from_model(model_user)
-    
+
+    def update(self, user: entity.DormybobaUser) -> entity.DormybobaUser:
+        model_user = user.to_model()
+        with Session(self.engine) as session, session.begin():
+            model_user = session.merge(model_user)
+            session.flush()
+            return entity.DormybobaUser.from_model(model_user)
+
     def getById(self, user_id: int) -> Optional[entity.DormybobaUser]:
         with Session(self.engine) as session, session.begin():
             stmt = select(model.DormybobaUser).where(
@@ -59,7 +66,7 @@ class SqlAlchemyDormybobaUserRepository(DormybobaUserRepository):
             )
             res = session.execute(stmt).all()
             return list([entity.DormybobaUser.from_model(row[0]) for row in res])
-        
+
 class DormybobaRoleRepository(metaclass=abc.ABCMeta):
     """An interface to dormyboba user repository"""
 
@@ -81,5 +88,5 @@ class SqlAlchemyDormybobaRoleRepository(DormybobaRoleRepository):
 
             if model_role is None:
                 return None
-            
+
             return entity.DormybobaRole.from_model(model_role)

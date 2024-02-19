@@ -26,6 +26,8 @@ dormyboba-api = {git = "https://github.com/aaletov/dormyboba-api.git", rev = "ma
 docopt = "^0.6.2"
 fastapi = {extras = ["all"], version = "^0.109.2"}
 loguru = "^0.7.2"
+pyjwt = "^2.8.0"
+cryptography = "^42.0.3"
 
 
 [build-system]

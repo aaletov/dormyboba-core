@@ -31,6 +31,7 @@ class GsheetConfig:
 @dataclass
 class DormybobaConfig:
     domain: str
+    private_key: str
     pg_config: PostgresConfig
     gsheet_config: GsheetConfig
 
@@ -38,6 +39,7 @@ class DormybobaConfig:
     def parse(yaml_config: Any) -> 'DormybobaConfig':
         return DormybobaConfig(
             domain=yaml_config["domain"],
+            private_key=yaml_config["private_key"],
             pg_config=PostgresConfig.parse(yaml_config["postgres"]),
             gsheet_config=GsheetConfig.parse(yaml_config["gc"]),
         )

@@ -28,9 +28,10 @@ INSERT INTO public.dormyboba_user(
         institute_id,
         academic_type_id,
         enroll_year,
-        academic_group
+        academic_group,
+        registration_complete
     )
-    SELECT 608713, role_id, 51, 3, 0, '5130904/00104'
+    SELECT 608713, role_id, 51, 3, 0, '5130904/00104', 'true'
     FROM public.dormyboba_role WHERE role_name = 'admin';
 
 INSERT INTO public.dormyboba_user(
@@ -39,7 +40,8 @@ INSERT INTO public.dormyboba_user(
         institute_id,
         academic_type_id,
         enroll_year,
-        academic_group
+        academic_group,
+        registration_complete
     )
-    SELECT 507316373, role_id, 51, 3, 0, '5130904/00104'
+    SELECT 507316373, role_id, 51, 3, 0, '5130904/00104', 'true'
     FROM public.dormyboba_role WHERE role_name = 'admin';

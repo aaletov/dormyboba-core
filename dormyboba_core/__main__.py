@@ -19,25 +19,26 @@ import gspread
 import uvicorn
 from contextlib import asynccontextmanager
 import importlib.resources
-from pydantic import BaseModel
 from fastapi import FastAPI, Request, status
 from fastapi.responses import HTMLResponse
 from fastapi.staticfiles import StaticFiles
 from fastapi.templating import Jinja2Templates
 from .config import parse_config, DormybobaConfig
+from .logger import setup_logging
 from .repository import (
     SqlAlchemyDormybobaUserRepository,
     SqlAlchemyDormybobaRoleRepository,
-    SqlAlchemyVerificationCodeRepository,
     SqlAlchemyInstituteRepository,
     SqlAlchemyAcademicTypeRepository,
     GsheetDefectRepository,
     SqlAlchemyMailingRepository,
     SqlAlchemyQueueRepository,
 )
+from . import entity
+from .entity import Token, TokenConverter
 from .service import DormybobaCoreServicer
 from .server import DormybobaServer
-from .logger import setup_logging
+from .api import InviteRegisterUserRequest
 
 warnings.filterwarnings("ignore", category=SyntaxWarning)
 
@@ -58,22 +59,23 @@ WORKSHEET = get_worksheet(CONFIG)
 
 user_repository = SqlAlchemyDormybobaUserRepository(ENGINE)
 role_repository = SqlAlchemyDormybobaRoleRepository(ENGINE)
-code_repository = SqlAlchemyVerificationCodeRepository(ENGINE)
 institute_repository = SqlAlchemyInstituteRepository(ENGINE)
 academic_type_repository = SqlAlchemyAcademicTypeRepository(ENGINE)
 mailing_repository = SqlAlchemyMailingRepository(ENGINE)
 queue_repository = SqlAlchemyQueueRepository(ENGINE)
 sheet_repository = GsheetDefectRepository(WORKSHEET)
 
+token_converter = TokenConverter(CONFIG.private_key)
+
 dormyboba_servicer = DormybobaCoreServicer(
     user_repository=user_repository,
     role_repository=role_repository,
-    code_repository=code_repository,
     institute_repository=institute_repository,
     academic_type_repository=academic_type_repository,
     mailing_repository=mailing_repository,
     queue_repository=queue_repository,
     sheet_repository=sheet_repository,
+    token_converter=token_converter,
 )
 
 dormyboba_server = DormybobaServer(dormyboba_servicer)
@@ -103,13 +105,20 @@ async def invite_widget(request: Request, token: str):
         request=request, name="widget.html",
     )
 
-class UserToken(BaseModel):
-    token: str
-    userId: int
-
 @app.post("/invite/registerUser", status_code=status.HTTP_201_CREATED)
-async def invite_register_user(user_token: UserToken):
-    logger.info(user_token)
+async def invite_register_user(req: InviteRegisterUserRequest):
+    token = token_converter.decode(req.token)
+    role = role_repository.getByName(token.role)
+    user_repository.add(entity.DormybobaUser(
+        user_id=req.userId,
+        role=role,
+        institute=None,
+        academic_type=None,
+        year=None,
+        group=None,
+        is_registered=False,
+    ))
+    logger.info(req)
     return
 
 if __name__ == "__main__":

@@ -10,7 +10,6 @@ from .. import entity
 from ..repository import (
     SqlAlchemyDormybobaUserRepository,
     SqlAlchemyDormybobaRoleRepository,
-    SqlAlchemyVerificationCodeRepository,
     SqlAlchemyInstituteRepository,
     SqlAlchemyAcademicTypeRepository,
     GsheetDefectRepository,
@@ -25,67 +24,46 @@ class DormybobaCoreServicer(apiv1grpc.DormybobaCoreServicer):
         self,
         user_repository: SqlAlchemyDormybobaUserRepository,
         role_repository: SqlAlchemyDormybobaRoleRepository,
-        code_repository: SqlAlchemyVerificationCodeRepository,
         institute_repository: SqlAlchemyInstituteRepository,
         academic_type_repository: SqlAlchemyAcademicTypeRepository,
         sheet_repository: GsheetDefectRepository,
         mailing_repository: SqlAlchemyMailingRepository,
         queue_repository: SqlAlchemyQueueRepository,
+        token_converter: entity.TokenConverter,
     ):
         self.user_repository = user_repository
         self.role_repository = role_repository
-        self.code_repository = code_repository
         self.institute_repository = institute_repository
         self.academic_type_repository = academic_type_repository
         self.sheet_repository = sheet_repository
         self.mailing_repository = mailing_repository
         self.queue_repository = queue_repository
+        self.token_converter = token_converter
 
     @staticmethod
     def nullifier(message: Any, field_name: str) -> Optional[Any]:
         return None if not(message.HasField(field_name)) else getattr(message, field_name)
 
-    def GenerateVerificationCode(
-            self,
-            request: apiv1.GenerateVerificationCodeRequest,
-            context: grpc.ServicerContext,
-    ):
-        role = self.role_repository.getByName(request.role_name)
-        code = entity.VerificationCode(
-            verification_code=random.randint(1000, 9999),
-            role=role,
-        )
-        self.code_repository.add(code)
-
-        return apiv1.GenerateVerificationCodeResponse(
-            verification_code=code.verification_code,
-        )
-
-    def GetRoleByVerificationCode(
+    def GenerateToken(
         self,
-        request: apiv1.GetRoleByVerificationCodeRequest,
+        request: apiv1.GenerateTokenRequest,
         context: grpc.ServicerContext,
     ):
-        code = self.code_repository.getByCode(request.verification_code)
-        if code is None:
-            return context.abort_with_status(grpc.StatusCode.INVALID_ARGUMENT)
+        token = entity.Token.generate(request.role_name)
+        return apiv1.GenerateTokenResponse(
+            token=self.token_converter.encode(token),
+        )
 
-        api_role = code.role.to_api()
-        return apiv1.GetRoleByVerificationCodeResponse(role=api_role)
-
-    def CreateUser(
+    def UpdateUser(
         self,
-        request: apiv1.CreateUserRequest,
+        request: apiv1.UpdateUserRequest,
         context: grpc.ServicerContext,
     ):
-        code = self.code_repository.getByCode(request.verification_code)
-        if code is None:
-            return context.abort_with_status(grpc.StatusCode.INVALID_ARGUMENT)
-
         user = entity.DormybobaUser.from_api(request.user)
-
-        user = self.user_repository.add(user)
-        return apiv1.CreateUserResponse(user=user.to_api())
+        user = self.user_repository.update(user)
+        return apiv1.UpdateUserResponse(
+            user=user.to_api(),
+        )
 
     def GetUserById(
         self,
