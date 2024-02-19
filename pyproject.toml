@@ -8,6 +8,10 @@ readme = "README.md"
 packages = [
     { include = "dormyboba_core", from = "." },
 ]
+include = [
+    "dormyboba_core/static",
+    "dormyboba_core/templates",
+]
 
 [tool.poetry.dependencies]
 python = ">=3.10,<4.0"
@@ -19,6 +23,11 @@ grpcio-tools = "^1.60.1"
 gspread = "^6.0.0"
 sqlalchemy = "^2.0.25"
 dormyboba-api = {git = "https://github.com/aaletov/dormyboba-api.git", rev = "main", subdirectory = "api/generated/python"}
+docopt = "^0.6.2"
+fastapi = {extras = ["all"], version = "^0.109.2"}
+loguru = "^0.7.2"
+pyjwt = "^2.8.0"
+cryptography = "^42.0.3"
 
 
 [tool.poetry.group.dev.dependencies]

@@ -32,7 +32,6 @@ class DormybobaRole(Base):
     role_name: Mapped[Optional[str]] = mapped_column(String(50))
 
     dormyboba_user: Mapped[List['DormybobaUser']] = relationship('DormybobaUser', back_populates='role')
-    verification_code: Mapped[List['VerificationCode']] = relationship('VerificationCode', back_populates='role')
 
 
 class Institute(Base):
@@ -59,10 +58,11 @@ class DormybobaUser(Base):
 
     user_id: Mapped[int] = mapped_column(Integer, primary_key=True)
     role_id: Mapped[int] = mapped_column(Integer)
-    academic_type_id: Mapped[int] = mapped_column(Integer)
-    institute_id: Mapped[int] = mapped_column(Integer)
-    enroll_year: Mapped[int] = mapped_column(Integer)
-    academic_group: Mapped[str] = mapped_column(String(20))
+    registration_complete: Mapped[bool] = mapped_column(Boolean)
+    academic_type_id: Mapped[Optional[int]] = mapped_column(Integer)
+    institute_id: Mapped[Optional[int]] = mapped_column(Integer)
+    enroll_year: Mapped[Optional[int]] = mapped_column(Integer)
+    academic_group: Mapped[Optional[str]] = mapped_column(String(20))
 
     academic_type: Mapped['AcademicType'] = relationship('AcademicType', back_populates='dormyboba_user')
     institute: Mapped['Institute'] = relationship('Institute', back_populates='dormyboba_user')
@@ -80,7 +80,6 @@ class Mailing(Base):
     )
 
     mailing_id: Mapped[int] = mapped_column(Integer, primary_key=True)
-    academic_group: Mapped[str] = mapped_column(String(20))
     is_event_generated: Mapped[bool] = mapped_column(Boolean, server_default=text('false'))
     theme: Mapped[Optional[str]] = mapped_column(String(256))
     mailing_text: Mapped[Optional[str]] = mapped_column(Text)
@@ -88,22 +87,10 @@ class Mailing(Base):
     academic_type_id: Mapped[Optional[int]] = mapped_column(Integer)
     institute_id: Mapped[Optional[int]] = mapped_column(Integer)
     enroll_year: Mapped[Optional[int]] = mapped_column(Integer)
+    academic_group: Mapped[Optional[str]] = mapped_column(String(20))
 
     academic_type: Mapped['AcademicType'] = relationship('AcademicType', back_populates='mailing')
     institute: Mapped['Institute'] = relationship('Institute', back_populates='mailing')
-
-
-class VerificationCode(Base):
-    __tablename__ = 'verification_code'
-    __table_args__ = (
-        ForeignKeyConstraint(['role_id'], ['dormyboba_role.role_id'], name='verification_code_role_id_fkey'),
-        PrimaryKeyConstraint('code', name='verification_code_pkey')
-    )
-
-    code: Mapped[int] = mapped_column(Integer, primary_key=True)
-    role_id: Mapped[int] = mapped_column(Integer)
-
-    role: Mapped['DormybobaRole'] = relationship('DormybobaRole', back_populates='verification_code')
 
 
 class Queue(Base):

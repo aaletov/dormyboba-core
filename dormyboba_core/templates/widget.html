@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Basic Django Project</title>
+  <script src="https://vk.com/js/api/openapi.js?169" type="text/javascript"></script>
+  <link id="favicon" rel="icon" type="image/x-icon" href="/static/favicon.ico">
+</head>
+<body>
+
+  <div id="vk_send_message"></div>
+  <script type="text/javascript">
+  <!-- TODO use template for group id -->
+    const searchParams = new URLSearchParams(window.location.search);
+    const token = searchParams.get("token");
+
+    VK.Widgets.AllowMessagesFromCommunity("vk_send_message", {height: 30}, "223616799");
+    VK.Observer.subscribe("widgets.allowMessagesFromCommunity.allowed", function f(userId) {
+      console.log(userId);
+      console.log("allowed");
+      fetch("/invite/registerUser", {
+        method: "POST",
+        body: JSON.stringify({
+          token: token,
+          userId: userId,
+        }),
+        headers: {
+          "Content-type": "application/json; charset=UTF-8"
+        }
+      });
+    });
+  </script>
+
+</body>
+</html>
