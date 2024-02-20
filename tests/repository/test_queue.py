@@ -47,6 +47,33 @@ class TestSqlAlchemyQueueRepository(unittest.TestCase):
         result = self.repo.getById(1)
         self.assertEqual(result.queue_id, 1)
 
+    def test_deleteUser(self):
+        user = entity.DormybobaUser(
+            role=entity.DormybobaRole(role_id=1, role_name='student'),
+            user_id=1,
+            institute=entity.Institute(institute_id=1, institute_name="sample institue"),
+            academic_type=entity.AcademicType(type_id=1, type_name="sample name"),
+            year=2024,
+            group='3530904/00104',
+            is_registered=True
+        )
+        queue = entity.Queue(
+            title='sample title',
+            description='sample desc',
+            active_user=user,
+            queue_id=1,
+            is_event_generated=True,
+            open=datetime.now(),
+            close=datetime.now(),
+        )
+        with Session(self.engine) as session, session.begin():
+            model_queue = queue.to_model()
+            session.add(model_queue)
+
+        self.repo.deleteUser(queue, user)
+        result = self.repo.getById(1)
+        self.assertEqual(result.active_user, None)
+
     def test_update(self):
         user = entity.DormybobaUser(
             role=entity.DormybobaRole(role_id=1, role_name='student'),
