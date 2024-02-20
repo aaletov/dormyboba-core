@@ -1,0 +1,8 @@
+[run]
+omit =
+    */__init__.py
+    */generated.py
+    __main__.py
+    */api.py
+    */server.py
+    */logger.py

@@ -1,3 +1,4 @@
+from __future__ import annotations
 from dataclasses import dataclass
 from typing import Optional
 import dormyboba_api.v1api_pb2 as apiv1

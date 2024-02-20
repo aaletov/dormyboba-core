@@ -1,3 +1,4 @@
+from __future__ import annotations
 from typing import Optional, List
 from dataclasses import dataclass
 import datetime
@@ -69,10 +70,11 @@ class Mailing:
     def from_model(model_mailing: model.Mailing) -> 'Mailing':
         institute = None
         if model_mailing.institute is not None:
-            entity.Institute.from_model(model_mailing.institute)
+            institute = entity.Institute.from_model(model_mailing.institute)
+
         academic_type = None
         if model_mailing.academic_type is not None:
-            entity.AcademicType.from_model(model_mailing.academic_type)
+            academic_type = entity.AcademicType.from_model(model_mailing.academic_type)
 
         return Mailing(
             mailing_id=model_mailing.mailing_id,
