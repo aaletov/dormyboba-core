@@ -52,4 +52,3 @@ class TestConcreteAcademicTypeRepository(unittest.TestCase):
     def test_getByName(self):
         result = self.repo.getByName('test')
         self.assertIsNone(result)
-
