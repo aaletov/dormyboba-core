@@ -52,14 +52,14 @@ def test_from_api(api_mailing_stub_with_full_fields):
     assert result.at == datetime.datetime(2022, 1, 1)
 
     assert result.institute.institute_id == api_mailing_stub_with_full_fields.institute_id
-    assert result.institute.institute_name == None  # Проверка на None, так как в вашем тестовом объекте institute_name равно None
+    assert result.institute.institute_name == None 
 
     assert result.academic_type.type_id == api_mailing_stub_with_full_fields.academic_type_id
-    assert result.academic_type.type_name == None  # Проверка на None, так как в вашем тестовом объекте type_name равно None
+    assert result.academic_type.type_name == None
 
     assert result.year == api_mailing_stub_with_full_fields.year
     assert result.group == api_mailing_stub_with_full_fields.group
-    assert result.is_event_generated == None  # Проверка на None, так как в вашем тестовом объекте is_event_generated равно None
+    assert result.is_event_generated == None
 
 def test_to_api(api_mailing_stub_with_full_fields):
     mailing = Mailing.from_api(api_mailing_stub_with_full_fields)

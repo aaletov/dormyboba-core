@@ -56,7 +56,6 @@ class TestParseConfig(unittest.TestCase):
         self.assertEqual(dormyboba_config.pg_config.db_url, "postgresql+psycopg2://user:password@localhost/database")
         self.assertEqual(dormyboba_config.gsheet_config.defect_sheet_id, "your_sheet_id")
 
-        # Clean up the test file
         yaml_path.unlink()
 
 if __name__ == '__main__':

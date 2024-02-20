@@ -18,7 +18,7 @@ from dormyboba_api.v1api_pb2 import GenerateTokenRequest, UpdateUserRequest
 
 class TestDormybobaCoreServicer(unittest.TestCase):
     def setUp(self):
-        # Create mock repositories and token converter
+
         self.user_repository = MagicMock(SqlAlchemyDormybobaUserRepository)
         self.role_repository = MagicMock(SqlAlchemyDormybobaRoleRepository)
         self.institute_repository = MagicMock(SqlAlchemyInstituteRepository)
@@ -28,7 +28,6 @@ class TestDormybobaCoreServicer(unittest.TestCase):
         self.queue_repository = MagicMock(SqlAlchemyQueueRepository)
         self.token_converter = MagicMock(entity.TokenConverter)
 
-        # Create an instance of DormybobaCoreServicer
         self.servicer = DormybobaCoreServicer(
             self.user_repository,
             self.role_repository,
@@ -41,18 +40,14 @@ class TestDormybobaCoreServicer(unittest.TestCase):
         )
 
     def test_generate_token(self):
-        # Mock data for GenerateTokenRequest
         request = GenerateTokenRequest(role_name="admin")
 
-        # Mock the Token generation and encoding
         mock_token = entity.Token(role="admin", random_id=123456)
         self.token_converter.encode.return_value = "mocked_encoded_token"
         entity.Token.generate = MagicMock(return_value=mock_token)
 
-        # Call the method
         response = self.servicer.GenerateToken(request, None)
 
-        # Assertions
         self.assertEqual(response.token, "mocked_encoded_token")
         entity.Token.generate.assert_called_once_with("admin")
         self.token_converter.encode.assert_called_once_with(mock_token)
