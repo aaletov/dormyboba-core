@@ -59,6 +59,7 @@ class SqlAlchemyQueueRepository(QueueRepository):
     def update(self, queue: entity.Queue) -> entity.Queue:
         with Session(self.engine) as session, session.begin():
             session.merge(queue.to_model())
+            return entity.Queue.from_model(queue.to_model())
 
     def addUser(self, queue: entity.Queue, user: entity.DormybobaUser) -> entity.Queue:
         with Session(self.engine) as session, session.begin():
@@ -85,7 +86,9 @@ class SqlAlchemyQueueRepository(QueueRepository):
                 )
             session.execute(stmt)
             session.flush()
-            session.refresh(model_queue)
+            stmt = select(model.Queue).where(
+                model.Queue.queue_id == queue.queue_id)
+            model_queue = session.execute(stmt).first()[0]
             return entity.Queue.from_model(model_queue)
 
     def deleteUser(self, queue: entity.Queue, user: entity.DormybobaUser) -> None:
