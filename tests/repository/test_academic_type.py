@@ -52,6 +52,3 @@ class TestConcreteAcademicTypeRepository(unittest.TestCase):
     def test_getByName(self):
         result = self.repo.getByName('test')
         self.assertIsNone(result)
-
-if __name__ == '__main__':
-    unittest.main()
