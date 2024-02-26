@@ -37,16 +37,6 @@ def construct_worksheet(
     defect_sheet = gc.open_by_key(defect_sheet_id)
     return defect_sheet.get_worksheet(0)
 
-# class DumbEngine(Engine):
-#     def __new__(cls, url: str):
-#         return create_engine(url)
-
-# class DumbWorksheet(Worksheet):
-#     def __new__(cls, config_dir: str, defect_sheet_id: str):
-#         gc = gspread.service_account(filename=(config_dir / "service_account.json"))
-#         defect_sheet = gc.open_by_key(defect_sheet_id)
-#         return defect_sheet.get_worksheet(0)
-
 class Container(containers.DeclarativeContainer):
 
     config = providers.Configuration(yaml_files=[CONFIG_DIR / "config.yaml"])
