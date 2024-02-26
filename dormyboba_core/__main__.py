@@ -87,7 +87,7 @@ async def lifespan(app: FastAPI):
 
 app = FastAPI(lifespan=lifespan)
 
-path = Path(importlib.resources.files()).resolve()
+path = Path(importlib.resources.files(__package__)).resolve()
 
 app.mount("/static", StaticFiles(directory=(path / "static")), name="static")
 templates = Jinja2Templates(directory=(path / "templates"))
