@@ -3,11 +3,11 @@ Dormyboba core service
 
 ## Local development
 
-Необходимо указать флаг `--config-dir`, соответствующий директории, в которой
+Необходимо указать переменную среды `CONFIG_DIR`, соответствующий директории, в которой
 лежат конфиги
 
 ```bash
-poetry run python3 -m dormyboba_core --config-dir=./config
+CONFIG_DIR=./config poetry run python3 -m dormyboba_core
 ```
 
 ### Coverage:
