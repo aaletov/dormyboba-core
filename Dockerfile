@@ -6,8 +6,9 @@ COPY . ./
 RUN export POETRY=${HOME}/.local/bin/poetry && \
     ${POETRY} config virtualenvs.in-project true && \
     ${POETRY} install
-FROM debian:bookworm-slim
+FROM python:3.10.13-slim-bookworm
 WORKDIR /app
 COPY --from=builder /usr/src/dormyboba-core/ ./
+COPY config /config
 EXPOSE 50051
 CMD ["/app/.venv/bin/python3", "-m", "dormyboba_core", "--config-dir", "/config"]
