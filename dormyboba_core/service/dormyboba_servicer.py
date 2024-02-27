@@ -146,12 +146,8 @@ class DormybobaCoreServicer(apiv1grpc.DormybobaCoreServicer):
         request: apiv1.AddPersonToQueueRequest,
         context: grpc.ServicerContext,
     ):
-        queue = self.queue_repository.getById(request.queue_id)
-        user = self.user_repository.getById(request.user_id)
-        queue = self.queue_repository.addUser(queue, user)
-
-        is_active = (queue.active_user is not None) and (queue.active_user.user_id == user.user_id)
-
+        queue = self.queue_repository.addUser(request.queue_id, request.user_id)
+        is_active = queue.active_user is not None
         return apiv1.AddPersonToQueueResponse(is_active=is_active)
 
     def RemovePersonFromQueue(
