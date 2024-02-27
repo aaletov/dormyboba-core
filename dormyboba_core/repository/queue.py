@@ -22,7 +22,7 @@ class QueueRepository(metaclass=abc.ABCMeta):
         raise NotImplementedError()
 
     @abc.abstractmethod
-    def addUser(self, queue: entity.Queue, user: entity.DormybobaUser) -> entity.Queue:
+    def addUser(self, queue_id: int, user_id: int) -> entity.Queue:
         raise NotImplementedError()
 
     @abc.abstractmethod
@@ -61,35 +61,30 @@ class SqlAlchemyQueueRepository(QueueRepository):
             session.merge(queue.to_model())
             return entity.Queue.from_model(queue.to_model())
 
-    def addUser(self, queue: entity.Queue, user: entity.DormybobaUser) -> entity.Queue:
+    def addUser(self, queue_id: int, user_id: int) -> entity.Queue:
         with Session(self.engine) as session, session.begin():
-            stmt = select(model.Queue).where(
-                model.Queue.queue_id == queue.queue_id)
-            res = session.execute(stmt).first()
+            queue = session.scalar(
+                select(model.Queue)
+                .filter(model.Queue.queue_id == queue_id)
+            )
 
-            if res is None:
+            if queue is None:
                 raise ValueError("No such queue")
 
-            model_queue: model.Queue = res[0]
-            if model_queue.active_user == None:
-                stmt = update(model.Queue).where(
-                    model.Queue.queue_id == model_queue.queue_id,
-                ).values(
-                    active_user_id=user.user_id
-                )
+            if queue.active_user is None:
+                queue.active_user_id = user_id
             else:
-                # just throw if user already joined queue
-                stmt = insert(model.QueueToUser).values(
-                    user_id=user.user_id,
-                    queue_id=queue.queue_id,
-                    joined=datetime.now(),
+                session.add(
+                    model.QueueToUser(
+                        user_id=user_id,
+                        queue_id=queue_id,
+                        joined=datetime.now(),
+                    ),
                 )
-            session.execute(stmt)
+
             session.flush()
-            stmt = select(model.Queue).where(
-                model.Queue.queue_id == queue.queue_id)
-            model_queue = session.execute(stmt).first()[0]
-            return entity.Queue.from_model(model_queue)
+            session.refresh(queue)
+            return entity.Queue.from_model(queue)
 
     def deleteUser(self, queue: entity.Queue, user: entity.DormybobaUser) -> None:
         with Session(self.engine) as session, session.begin():
