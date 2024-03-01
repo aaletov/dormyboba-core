@@ -11,7 +11,6 @@ WORKDIR /app
 ENV CONFIG_DIR /config
 RUN apt-get update && apt-get install -y curl
 COPY --from=builder /usr/src/dormyboba-core/ ./
-COPY config ${CONFIG_DIR}
 EXPOSE 50051
 EXPOSE 8000
 HEALTHCHECK --interval=30s --timeout=30s \
