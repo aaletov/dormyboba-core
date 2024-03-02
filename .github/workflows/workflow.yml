@@ -112,4 +112,4 @@ jobs:
         with:
           compose-file: "./tests/integration/features/steps/docker-compose.yml"
         env:
-          CORE_IMAGE: ${{ !steps.meta.outputs.tags[0] }}
+          CORE_IMAGE: ${{ steps.meta.outputs.tags[0] }}
