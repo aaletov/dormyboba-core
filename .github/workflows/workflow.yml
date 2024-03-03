@@ -102,13 +102,14 @@ jobs:
         uses: actions/download-artifact@v4
         with:
           name: docker-meta
-      - name: Cat docker-meta
-        id: cat-meta
+      - name: Read docker-meta
+        id: read-meta
         run: |
-          cat docker-meta.json >> $GITHUB_OUTPUT
+          tag=$(cat docker-meta.json | jq -r '.tags[-1]')
+          echo "tag=$tag" >> $GITHUB_OUTPUT
       - name: Up docker compose
         uses: isbang/compose-action@v1.5.1
         with:
           compose-file: "./tests/integration/features/steps/docker-compose.yml"
         env:
-          CORE_IMAGE: ${{ steps.cat-meta.outputs.tags[-1] }}
+          CORE_IMAGE: ${{ steps.read-meta.outputs.tag }}
