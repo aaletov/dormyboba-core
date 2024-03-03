@@ -96,18 +96,17 @@ jobs:
     runs-on: ubuntu-latest
     needs: build
     steps:
-      - name: Checkout
-        uses: actions/checkout@v4
       - name: Download docker meta from build job
         uses: actions/download-artifact@v4
         with:
           name: docker-meta
-          path: docker-meta.json
       - name: Read docker-meta
         id: read-meta
         run: |
           tag=$(cat docker-meta.json | jq -r ".tags[-1]")
           echo "tag=$tag" >> $GITHUB_OUTPUT
+      - name: Checkout
+        uses: actions/checkout@v4
       - name: Up docker compose
         uses: isbang/compose-action@v1.5.1
         with:
