@@ -105,6 +105,7 @@ jobs:
       - name: Read docker-meta
         id: read-meta
         run: |
+          jq --version
           tag=$(cat docker-meta.json | jq -r ".tags[-1]")
           echo "tag=$tag" >> $GITHUB_OUTPUT
       - name: Up docker compose
