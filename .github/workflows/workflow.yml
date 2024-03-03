@@ -98,9 +98,18 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v4
+      - name: Download wiremock stubs
+        run: |
+          mkdir wiremock
+          mkdir wiremock/mappings
+          cd wiremock/mappings && \
+            wget https://raw.githubusercontent.com/wiremock/api-template-library/main/api/G/googleapis.com/sheets/googleapis.com-sheets-metadata.json && \
+            wget https://raw.githubusercontent.com/wiremock/api-template-library/main/api/G/googleapis.com/sheets/googleapis.com-sheets-stubs.json && \
+            wget https://raw.githubusercontent.com/wiremock/api-template-library/main/api/G/googleapis.com/sheets/googleapis.com-sheets-swagger.json
       - name: Up docker compose
         uses: isbang/compose-action@v1.5.1
         with:
           compose-file: "./tests/integration/features/steps/docker-compose.yml"
         env:
           CORE_IMAGE: "ghcr.io/${{ github.repository }}:${{ github.head_ref }}"
+          WIREMOCK_DIR: ${{ github.workspace }}/wiremock

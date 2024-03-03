@@ -1,0 +1,16 @@
+dormyboba:
+  domain: 'localhost:8000'
+  postgres:
+    user: 'postgres'
+    password: '123456'
+    host: 'postgresql'
+    db: 'dormyboba'
+  gc:
+    defect_sheet_id: '<defect_sheet_id>'
+  private_key: |
+    -----BEGIN PRIVATE KEY-----
+    YOUR
+    PRIVATE
+    KEY
+    HERE
+    -----END PRIVATE KEY-----

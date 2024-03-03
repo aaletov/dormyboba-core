@@ -6,9 +6,18 @@ services:
     ports:
       - "50051:50051"
       - "8000:8000"
+    volumes:
+      - ${CORE_HOME}/tests/integration/features/steps/test_config:/config
   postgresql:
     image: "postgres:15.5-alpine3.18"
     ports:
       - "5432:5432"
     environment:
      POSTGRES_PASSWORD: "123456"
+     POSTGRES_DB: "dormyboba"
+  wiremock:
+    image: wiremock/wiremock:3.4.1
+    ports:
+      - "8080:8080"
+    volumes:
+      - ${WIREMOCK_DIR}:/home/wiremock
