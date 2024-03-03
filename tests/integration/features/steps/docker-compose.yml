@@ -14,7 +14,8 @@ services:
       - "5432:5432"
     environment:
      POSTGRES_PASSWORD: "123456"
-     POSTGRES_DB: "dormyboba"
+    volumes:
+      - ${CORE_HOME}/db:/docker-entrypoint-initdb.d
   wiremock:
     image: wiremock/wiremock:3.4.1
     ports:

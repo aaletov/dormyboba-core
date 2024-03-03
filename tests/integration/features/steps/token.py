@@ -7,8 +7,7 @@ import grpc
 import dormyboba_api.v1api_pb2 as apiv1
 import dormyboba_api.v1api_pb2_grpc as apiv1grpc
 
-TEST_DB_ADDR = "postgresql+psycopg2://postgres:123456@test_postgres/dormyboba"
-TEST_CORE_ADDR = "test_dormyboba_core:50051"
+TEST_CORE_ADDR = "dormyboba_core:50051"
 
 def before_all(context):
     channel = grpc.aio.insecure_channel(TEST_CORE_ADDR)
