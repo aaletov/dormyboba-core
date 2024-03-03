@@ -105,7 +105,7 @@ jobs:
       - name: Read docker-meta
         id: read-meta
         run: |
-          tag=$(cat docker-meta.json | jq -r '.tags[-1]')
+          tag=$(cat docker-meta.json | jq -r ".tags[-1]")
           echo "tag=$tag" >> $GITHUB_OUTPUT
       - name: Up docker compose
         uses: isbang/compose-action@v1.5.1
