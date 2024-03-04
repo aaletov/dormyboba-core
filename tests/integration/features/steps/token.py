@@ -9,12 +9,6 @@ from dormyboba_core.entity import Token
 TEST_CORE_ADDR = "dormyboba_core:50051"
 PUBLIC_KEY = "ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAACAQDHzEPNqqCOe4I+O834Rlvmm+Fbx3QINyofeBvUWk6zw4YVvzVjlQSxusEdSZwL8WR84YJZyd5iY5MeeM1MjwcA6uVz07CQ+iWALTiD0XXBmr+WguNZ5/zEmznzXJUC8K9YN5lMSGiPPzz1uIaS4pzRjIBy22knzYB8TCAYccSky77h5Ah42BwQaZ8YfjRXHumHaRqqOOrQUDVDF0VTHS31fKbmYiRm01EOumNHLQYgvh6gZfVPa5bNIRt1ZTpiGiBJkDaRIhecz1TWT1J/PasI1F8zcgZff0Sg78NgVB4iJq2aUGf5SBqR/HLvB9IfGtR1xUwG31+sUJJ3mEmop1D6N+WtLHUJM1GfdkRB6/r+u7l+rt/ihdlpYGlbMJxcOtNsGMDPf8dzVlRVm9nVCRTyQd7Da9hYrHDQM5OkrMUOzEGJ3X+V5BdENJu0N07l/ARtq9ctTZBTn/DAojggOd8SPtY0mm1icdQmIZFrdnyShjQ57tZkDYYVJostuJaEEMci9WActyfsWZPvXmzEdJkLTMssr60f27+hJlFiHPEScudIx/8eYpFKaOikSF0eUFm59fwE4PmcLGzPoE+/VyAblHIcxUGDUGKsi/ftFq5xbUOJxqiGkwZqPUXZnchPiRmJLn2LT+zdsvVF57tpCIwuyNseI6NoGqgq/tR2O8an2Q== vscode@19fad2f77a4d"
 
-def before_all(context):
-    raise RuntimeError("")
-    channel = grpc.aio.insecure_channel(TEST_CORE_ADDR)
-    stub = apiv1grpc.DormybobaCoreStub(channel)
-    context.stub = stub
-
 @when(u'Клиент вызывает GenerateToken() rpc с корректным значением роли')
 def step_impl(context):
     stub: apiv1grpc.DormybobaCoreStub = context.stub
