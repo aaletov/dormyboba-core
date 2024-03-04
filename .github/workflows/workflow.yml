@@ -136,10 +136,15 @@ jobs:
             ${{ github.workspace }}/tests/integration/features
       - name: Write docker logs
         if: ${{ !cancelled() }}
+        env:
+          CORE_IMAGE: "ghcr.io/${{ github.repository }}:${{ github.head_ref }}"
+          CORE_HOME: ${{ github.workspace }}
+          WIREMOCK_DIR: ${{ github.workspace }}/wiremock
         run: |
           docker ps
           docker compose -f ${{ github.workspace }}/tests/integration/features/steps/docker-compose.yml \
             logs > ${{ github.workspace }}/artifacts/compose.log
+          curl localhost:8000/invite/widget?token=token
       - name: Upload artifacts
         uses: actions/upload-artifact@v4
         if: ${{ !cancelled() }}
