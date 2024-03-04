@@ -129,11 +129,19 @@ jobs:
           $POETRY_HOME/bin/poetry install
       - name: Test with behave
         run: |
+          mkdir ${{ github.workspace }}/artifacts
           export ENV_PATH=$(${POETRY_HOME}/bin/poetry env info -p)
-          ${ENV_PATH}/bin/behave --junit ${{ github.workspace }}/tests/integration/features
-      - name: Upload docker meta
+          ${ENV_PATH}/bin/behave --junit \
+            --junit-directory ${{ github.workspace }}/artifacts/junit \
+            ${{ github.workspace }}/tests/integration/features
+      - name: Write compose logs
+        uses: isbang/compose-action@v1.5.1
+        with:
+          compose-file: ${{ github.workspace }}/tests/integration/features/steps/docker-compose.yml
+          compose-flags: "logs"
+      - name: Upload artifacts
         uses: actions/upload-artifact@v4
         if: ${{ !cancelled() }}
         with:
-          name: junit-reports
-          path: reports
+          name: integration-artifacts
+          path: artifacts
