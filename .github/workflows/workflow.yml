@@ -134,11 +134,9 @@ jobs:
           ${ENV_PATH}/bin/behave --junit \
             --junit-directory ${{ github.workspace }}/artifacts/junit \
             ${{ github.workspace }}/tests/integration/features
-      - name: Write compose logs
-        uses: isbang/compose-action@v1.5.1
-        with:
-          compose-file: ${{ github.workspace }}/tests/integration/features/steps/docker-compose.yml
-          compose-flags: "logs"
+      - name: Check docker
+        run: |
+          docker --version
       - name: Upload artifacts
         uses: actions/upload-artifact@v4
         if: ${{ !cancelled() }}
