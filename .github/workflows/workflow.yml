@@ -133,6 +133,7 @@ jobs:
           ${ENV_PATH}/bin/behave --junit ${{ github.workspace }}/tests/integration/features
       - name: Upload docker meta
         uses: actions/upload-artifact@v4
+        if: ${{ !cancelled() }}
         with:
           name: junit-reports
           path: reports
