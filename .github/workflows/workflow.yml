@@ -130,4 +130,9 @@ jobs:
       - name: Test with behave
         run: |
           export ENV_PATH=$(${POETRY_HOME}/bin/poetry env info -p)
-          ${ENV_PATH}/bin/behave ${{ github.workspace }}/tests/integration/features
+          ${ENV_PATH}/bin/behave --junit ${{ github.workspace }}/tests/integration/features
+      - name: Upload docker meta
+        uses: actions/upload-artifact@v4
+        with:
+          name: junit-reports
+          path: reports
