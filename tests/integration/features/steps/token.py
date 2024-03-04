@@ -1,8 +1,10 @@
 import base64
+import logging
 from behave import given, when, then
 from behave.api.async_step import async_run_until_complete
 import grpc
 import jwt
+import google.protobuf.json_format as gpjson
 import dormyboba_api.v1api_pb2 as apiv1
 import dormyboba_api.v1api_pb2_grpc as apiv1grpc
 from dormyboba_core.entity import Token
@@ -19,12 +21,18 @@ async def step_impl(context):
                 role_name="student",
             ),
         )
+        context.json_response = gpjson.MessageToJson(context.response)
         context.status = grpc.StatusCode.OK
     except grpc.RpcError as exc:
+        context.response = None
+        context.json_response = ""
         context.status = exc.code()
 
+# add decorator to log everything
 @then(u'Сервис отправляет Ответ со статусом OK')
 def step_impl(context):
+    logging.info(f"Response is {context.json_response}")
+    logging.info(f"Response status is {context.status}")
     assert context.status == grpc.StatusCode.OK
 
 @then(u'Ответ содержит поле token, содержащее корректный base64 закодированный JWT-токен')
