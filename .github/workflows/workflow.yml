@@ -135,6 +135,7 @@ jobs:
             --junit-directory ${{ github.workspace }}/artifacts/junit \
             ${{ github.workspace }}/tests/integration/features
       - name: Check docker
+        if: ${{ !cancelled() }}
         run: |
           docker --version
       - name: Upload artifacts
