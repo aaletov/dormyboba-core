@@ -102,12 +102,11 @@ jobs:
         uses: actions/checkout@v4
       - name: Download wiremock stubs
         run: |
-          mkdir wiremock
-          mkdir wiremock/mappings
-          cd wiremock/mappings && \
-            wget https://raw.githubusercontent.com/wiremock/api-template-library/main/api/G/googleapis.com/sheets/googleapis.com-sheets-metadata.json && \
-            wget https://raw.githubusercontent.com/wiremock/api-template-library/main/api/G/googleapis.com/sheets/googleapis.com-sheets-stubs.json && \
-            wget https://raw.githubusercontent.com/wiremock/api-template-library/main/api/G/googleapis.com/sheets/googleapis.com-sheets-swagger.json
+          mkdir -p ${{ github.workspace }}/wiremock/mappings
+          curl_options="--output-dir ${{ github.workspace }}/wiremock/mappings -LO"
+          curl ${curl_options} https://raw.githubusercontent.com/wiremock/api-template-library/main/api/G/googleapis.com/sheets/googleapis.com-sheets-metadata.json
+          curl ${curl_options} https://raw.githubusercontent.com/wiremock/api-template-library/main/api/G/googleapis.com/sheets/googleapis.com-sheets-stubs.json
+          curl ${curl_options} https://raw.githubusercontent.com/wiremock/api-template-library/main/api/G/googleapis.com/sheets/googleapis.com-sheets-swagger.json
           cat wiremock/mappings/googleapis.com-sheets-metadata.json
       - name: Up docker compose
         uses: isbang/compose-action@v1.5.1
