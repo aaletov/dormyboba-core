@@ -108,6 +108,7 @@ jobs:
             wget https://raw.githubusercontent.com/wiremock/api-template-library/main/api/G/googleapis.com/sheets/googleapis.com-sheets-metadata.json && \
             wget https://raw.githubusercontent.com/wiremock/api-template-library/main/api/G/googleapis.com/sheets/googleapis.com-sheets-stubs.json && \
             wget https://raw.githubusercontent.com/wiremock/api-template-library/main/api/G/googleapis.com/sheets/googleapis.com-sheets-swagger.json
+          cat wiremock/mappings/googleapis.com-sheets-metadata.json
       - name: Up docker compose
         uses: isbang/compose-action@v1.5.1
         with:
