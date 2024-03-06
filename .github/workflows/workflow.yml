@@ -119,7 +119,11 @@ jobs:
         run: |
           echo -n | openssl s_client -connect test_wiremock:443 | \
             sed -ne '/-BEGIN CERTIFICATE-/,/-END CERTIFICATE-/p' > \
-            /usr/local/share/ca-certificates/wiremock.crt
+            ${{ github.workspace }}/wiremock.crt
+      - name: Prepare cert directory
+        run: |
+          cp -r /usr/share/ca-certificates ${{ github.workspace }}/ca-certificates
+          cp ${{ github.workspace }}/wiremock.crt ${{ github.workspace }}/ca-certificates/wiremock.crt
       - name: Up docker compose
         uses: isbang/compose-action@v1.5.1
         with:
