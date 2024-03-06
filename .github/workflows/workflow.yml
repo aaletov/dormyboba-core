@@ -97,6 +97,10 @@ jobs:
         python-version: ["3.10"]
     needs: build
     if: ${{ github.event_name == 'pull_request' }}
+    env:
+      CORE_IMAGE: "ghcr.io/${{ github.repository }}:${{ github.head_ref }}"
+      CORE_HOME: ${{ github.workspace }}
+      WIREMOCK_DIR: ${{ github.workspace }}/wiremock
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -105,14 +109,20 @@ jobs:
           mkdir -p ${{ github.workspace }}/wiremock/mappings
           curl_options="--output-dir ${{ github.workspace }}/wiremock/mappings -LO"
           curl ${curl_options} https://raw.githubusercontent.com/wiremock/api-template-library/main/api/G/googleapis.com/sheets/googleapis.com-sheets-stubs.json
+      - name: Up wiremock service
+        uses: isbang/compose-action@v1.5.1
+        with:
+          services: |
+            wiremock
+      - name: Load wiremock certificate
+        run: |
+          echo -n | openssl s_client -connect test_wiremock:443 | \
+            sed -ne '/-BEGIN CERTIFICATE-/,/-END CERTIFICATE-/p' > \
+            /usr/local/share/ca-certificates/wiremock.crt
       - name: Up docker compose
         uses: isbang/compose-action@v1.5.1
         with:
           compose-file: ${{ github.workspace }}/tests/integration/features/steps/docker-compose.yml
-        env:
-          CORE_IMAGE: "ghcr.io/${{ github.repository }}:${{ github.head_ref }}"
-          CORE_HOME: ${{ github.workspace }}
-          WIREMOCK_DIR: ${{ github.workspace }}/wiremock
       - name: Set up Python ${{ matrix.python-version }}
         uses: actions/setup-python@v3
         with:
@@ -133,10 +143,6 @@ jobs:
             ${{ github.workspace }}/tests/integration/features
       - name: Write docker logs
         if: ${{ !cancelled() }}
-        env:
-          CORE_IMAGE: "ghcr.io/${{ github.repository }}:${{ github.head_ref }}"
-          CORE_HOME: ${{ github.workspace }}
-          WIREMOCK_DIR: ${{ github.workspace }}/wiremock
         run: |
           docker ps
           docker compose -f ${{ github.workspace }}/tests/integration/features/steps/docker-compose.yml \
