@@ -3,7 +3,7 @@ dormyboba:
   postgres:
     user: 'postgres'
     password: '123456'
-    host: 'postgresql'
+    host: 'localhost:5432'
     db: 'dormyboba'
   gc:
     defect_sheet_id: '<defect_sheet_id>'
