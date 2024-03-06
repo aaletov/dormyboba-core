@@ -102,11 +102,9 @@ jobs:
         uses: actions/checkout@v4
       - name: Download wiremock stubs
         run: |
-          mkdir -p ${{ github.workspace }}/stubs
+          mkdir -p ${{ github.workspace }}/mappings
           curl_options="--output-dir ${{ github.workspace }}/wiremock/mappings -LO"
-          raw="https://raw.githubusercontent.com"
-          path="wiremock/api-template-library/main/api/G/googleapis.com/sheets/googleapis.com-sheets-stubs.json"
-          curl ${curl_options} "${raw}/${path}"
+          curl ${curl_options} https://raw.githubusercontent.com/wiremock/api-template-library/main/api/G/googleapis.com/sheets/googleapis.com-sheets-stubs.json
       - name: Up docker compose
         uses: isbang/compose-action@v1.5.1
         with:
