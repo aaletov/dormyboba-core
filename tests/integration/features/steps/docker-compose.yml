@@ -3,6 +3,8 @@ version: "3.1"
 services:
   dormyboba_core:
     image: "${CORE_IMAGE}"
+    networks:
+      - dormyboba_default
     ports:
       - "50051:50051"
       - "8000:8000"
@@ -10,15 +12,25 @@ services:
       - ${CORE_HOME}/tests/integration/features/steps/test_config:/config
   postgresql:
     image: "postgres:15.5-alpine3.18"
-    ports:
-      - "5432:5432"
+    networks:
+      - dormyboba_default
+    expose:
+      - "5432"
     environment:
      POSTGRES_PASSWORD: "123456"
     volumes:
       - ${CORE_HOME}/db:/docker-entrypoint-initdb.d
   wiremock:
     image: wiremock/wiremock:3.4.1
-    ports:
-      - "8080:8080"
+    networks:
+      dormyboba_default:
+        aliases:
+          - "sheets.googleapis.com"
+    expose:
+      - "443"
     volumes:
       - ${WIREMOCK_DIR}:/home/wiremock
+    command: "--https-port 443"
+
+networks:
+  dormyboba_default:
