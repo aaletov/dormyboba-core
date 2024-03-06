@@ -112,6 +112,7 @@ jobs:
       - name: Up wiremock service
         uses: isbang/compose-action@v1.5.1
         with:
+          compose-file: ${{ github.workspace }}/tests/integration/features/steps/docker-compose.yml
           services: |
             wiremock
       - name: Load wiremock certificate
