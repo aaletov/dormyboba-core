@@ -102,12 +102,9 @@ jobs:
         uses: actions/checkout@v4
       - name: Download wiremock stubs
         run: |
-          mkdir -p ${{ github.workspace }}/wiremock/mappings
+          mkdir -p ${{ github.workspace }}/stubs
           curl_options="--output-dir ${{ github.workspace }}/wiremock/mappings -LO"
-          curl ${curl_options} https://raw.githubusercontent.com/wiremock/api-template-library/main/api/G/googleapis.com/sheets/googleapis.com-sheets-metadata.json
           curl ${curl_options} https://raw.githubusercontent.com/wiremock/api-template-library/main/api/G/googleapis.com/sheets/googleapis.com-sheets-stubs.json
-          curl ${curl_options} https://raw.githubusercontent.com/wiremock/api-template-library/main/api/G/googleapis.com/sheets/googleapis.com-sheets-swagger.json
-          cat wiremock/mappings/googleapis.com-sheets-metadata.json
       - name: Up docker compose
         uses: isbang/compose-action@v1.5.1
         with:
@@ -144,7 +141,6 @@ jobs:
           docker ps
           docker compose -f ${{ github.workspace }}/tests/integration/features/steps/docker-compose.yml \
             logs > ${{ github.workspace }}/artifacts/compose.log
-          docker images
           curl localhost:8000/invite/widget?token=token
       - name: Upload artifacts
         uses: actions/upload-artifact@v4

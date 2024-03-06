@@ -17,7 +17,7 @@ services:
     volumes:
       - ${CORE_HOME}/db:/docker-entrypoint-initdb.d
   wiremock:
-    image: wiremock/wiremock:3.4.2
+    image: wiremock/wiremock:3.4.1
     ports:
       - "8080:8080"
     volumes:
