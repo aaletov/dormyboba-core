@@ -10,7 +10,7 @@ services:
       - "8000:8000"
     volumes:
       - ${CORE_HOME}/tests/integration/features/steps/test_config:/config
-      - ${CORE_HOME}/ca-certificates:/usr/local/share/ca-certificates
+      - ${CORE_HOME}/wiremock-certificate:/usr/local/share/ca-certificates/wiremock-certificate
   postgresql:
     image: "postgres:15.5-alpine3.18"
     networks:
