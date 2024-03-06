@@ -6,7 +6,7 @@ dormyboba:
     host: 'localhost:5432'
     db: 'dormyboba'
   gc:
-    defect_sheet_id: '<defect_sheet_id>'
+    defect_sheet_id: '0zm8'
   private_key: |
     -----BEGIN RSA PRIVATE KEY-----
     MIIJKAIBAAKCAgEAx8xDzaqgjnuCPjvN+EZb5pvhW8d0CDcqH3gb1FpOs8OGFb81
