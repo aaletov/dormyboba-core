@@ -118,18 +118,6 @@ jobs:
           mkdir -p ${{ github.workspace }}/wiremock/mappings
           curl_options="--output-dir ${{ github.workspace }}/wiremock/mappings -LO"
           curl ${curl_options} https://raw.githubusercontent.com/wiremock/api-template-library/main/api/G/googleapis.com/sheets/googleapis.com-sheets-stubs.json
-      - name: Up wiremock service
-        uses: isbang/compose-action@v1.5.1
-        with:
-          compose-file: ${{ github.workspace }}/tests/integration/features/steps/docker-compose.yml
-          services: |
-            wiremock
-      - name: Load wiremock certificate
-        run: |
-          mkdir wiremock-certificate
-          echo -n | openssl s_client -connect test_wiremock:443 | \
-            sed -ne '/-BEGIN CERTIFICATE-/,/-END CERTIFICATE-/p' > \
-            ${{ github.workspace }}/wiremock-certificate/wiremock.crt
       - name: Up docker compose
         uses: isbang/compose-action@v1.5.1
         env:
