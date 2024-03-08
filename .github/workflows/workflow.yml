@@ -98,12 +98,21 @@ jobs:
     needs: build
     if: ${{ github.event_name == 'pull_request' }}
     env:
-      CORE_IMAGE: "ghcr.io/${{ github.repository }}@sha256:${{ github.sha }}"
       CORE_HOME: ${{ github.workspace }}
       WIREMOCK_DIR: ${{ github.workspace }}/wiremock
     steps:
       - name: Checkout
         uses: actions/checkout@v4
+      - name: Download docker meta from build job
+        uses: actions/download-artifact@v4
+        with:
+          name: docker-meta
+          path: docker-meta.json
+      - name: Read docker-meta
+        id: read-meta
+        run: |
+          tag=$(cat docker-meta.json | jq -r ".tags[-1]")
+          echo "tag=$tag" >> $GITHUB_OUTPUT
       - name: Download wiremock stubs
         run: |
           mkdir -p ${{ github.workspace }}/wiremock/mappings
@@ -123,6 +132,8 @@ jobs:
             ${{ github.workspace }}/wiremock-certificate/wiremock.crt
       - name: Up docker compose
         uses: isbang/compose-action@v1.5.1
+        env:
+          CORE_IMAGE: ${{ steps.read-meta.outputs.tag }}
         with:
           compose-file: ${{ github.workspace }}/tests/integration/features/steps/docker-compose.yml
       - name: Set up Python ${{ matrix.python-version }}
@@ -145,6 +156,8 @@ jobs:
             ${{ github.workspace }}/tests/integration/features
       - name: Write docker logs
         if: ${{ !cancelled() }}
+        env:
+          CORE_IMAGE: ${{ steps.read-meta.outputs.tag }}
         run: |
           docker ps
           docker compose -f ${{ github.workspace }}/tests/integration/features/steps/docker-compose.yml \
