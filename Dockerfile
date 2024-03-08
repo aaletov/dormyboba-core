@@ -13,6 +13,7 @@ ENV CONFIG_DIR /config
 RUN apt-get update && apt-get install -y ca-certificates curl
 COPY tests/cert/ca.crt /usr/local/share/ca-certificates
 RUN update-ca-certificates
+ENV SSL_CERT_FILE /etc/ssl/certs/ca-certificates.crt
 COPY --from=builder /usr/src/dormyboba-core/ ./
 EXPOSE 50051
 EXPOSE 8000
