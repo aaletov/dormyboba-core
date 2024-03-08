@@ -22,7 +22,7 @@ services:
     volumes:
       - ${CORE_HOME}/db:/docker-entrypoint-initdb.d
   nginx:
-    image: nginx:latest
+    image: nginx:1.25.4
     networks:
       dormyboba_default:
         aliases:
