@@ -107,11 +107,11 @@ jobs:
         uses: actions/download-artifact@v4
         with:
           name: docker-meta
-          path: docker-meta.json
+          path: docker-meta
       - name: Read docker-meta
         id: read-meta
         run: |
-          tag=$(cat docker-meta.json | jq -r ".tags[-1]")
+          tag=$(cat docker-meta/docker-meta.json | jq -r ".tags[-1]")
           echo "tag=$tag" >> $GITHUB_OUTPUT
       - name: Download wiremock stubs
         run: |
