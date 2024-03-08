@@ -149,7 +149,6 @@ jobs:
           docker ps
           docker compose -f ${{ github.workspace }}/tests/integration/features/steps/docker-compose.yml \
             logs > ${{ github.workspace }}/artifacts/compose.log
-          curl localhost:8000/invite/widget?token=token
       - name: Upload artifacts
         uses: actions/upload-artifact@v4
         if: ${{ !cancelled() }}
