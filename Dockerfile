@@ -10,10 +10,11 @@ RUN export POETRY=${HOME}/.local/bin/poetry && \
 FROM python:3.10.13-slim-bookworm
 WORKDIR /app
 ENV CONFIG_DIR /config
-RUN apt-get update && apt-get install -y curl
-COPY tests/cert/ca.crt .
+RUN apt-get update && apt-get install -y ca-certificates curl
+COPY tests/cert/ca.crt /usr/local/share/ca-certificates
+RUN update-ca-certificates
+ENV SSL_CERT_FILE /etc/ssl/certs/ca-certificates.crt
 COPY --from=builder /usr/src/dormyboba-core/ ./
-RUN cat ca.crt >> ./.venv/lib/python3.10/site-packages/certifi/cacert.pem
 EXPOSE 50051
 EXPOSE 8000
 HEALTHCHECK --interval=30s --timeout=30s \
