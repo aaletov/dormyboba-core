@@ -11,6 +11,9 @@ services:
     volumes:
       - ${CORE_HOME}/tests/integration/features/steps/test_config:/config
       - ${CORE_HOME}/wiremock-certificate:/usr/local/share/ca-certificates/wiremock-certificate
+    depends_on:
+      - postgresql
+      - nginx
   postgresql:
     image: "postgres:15.5-alpine3.18"
     networks:
