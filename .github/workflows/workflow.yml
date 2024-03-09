@@ -40,7 +40,12 @@ jobs:
     - name: Test with pytest
       run: |
         export ENV_PATH=$(${POETRY_HOME}/bin/poetry env info -p)
-        ${ENV_PATH}/bin/pytest
+        ${ENV_PATH}/bin/pytest --junit-xml report.xml
+    - name: Upload docker meta
+      uses: actions/upload-artifact@v4
+      with:
+        name: unit-report
+        path: report.xml
 
   build:
     runs-on: ubuntu-latest
