@@ -17,8 +17,8 @@ services:
     image: "postgres:15.5-alpine3.18"
     networks:
       - dormyboba_default
-    expose:
-      - "5432"
+    ports:
+      - "5432:5432"
     environment:
      POSTGRES_PASSWORD: "123456"
     volumes:
