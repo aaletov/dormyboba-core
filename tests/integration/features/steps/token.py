@@ -17,7 +17,7 @@ PUBLIC_KEY = "ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAACAQDHzEPNqqCOe4I+O834Rlvmm+Fbx3
 @async_run_until_complete
 async def step_impl(context: behave_runner.Context):
     stub: apiv1grpc.DormybobaCoreStub = context.stub
-    do_rpc(
+    await do_rpc(
         context,
         stub.GenerateToken,
         apiv1.GenerateTokenRequest(
