@@ -128,7 +128,7 @@ jobs:
         env:
           CORE_IMAGE: ${{ steps.read-meta.outputs.tag }}
         with:
-          compose-file: ${{ github.workspace }}/tests/integration/features/steps/docker-compose.yml
+          compose-file: ${{ github.workspace }}/tests/integration/features/steps/run/docker-compose.yml
       - name: Set up Python ${{ matrix.python-version }}
         uses: actions/setup-python@v3
         with:
@@ -153,7 +153,7 @@ jobs:
           CORE_IMAGE: ${{ steps.read-meta.outputs.tag }}
         run: |
           docker ps
-          docker compose -f ${{ github.workspace }}/tests/integration/features/steps/docker-compose.yml \
+          docker compose -f ${{ github.workspace }}/tests/integration/features/steps/run/docker-compose.yml \
             logs > ${{ github.workspace }}/artifacts/compose.log
       - name: Upload artifacts
         uses: actions/upload-artifact@v4
