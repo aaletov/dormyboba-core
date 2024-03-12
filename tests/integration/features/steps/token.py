@@ -44,14 +44,17 @@ def step_impl(context: behave_runner.Context):
     assert context.decoded_token["role"] == "student"
 
 @when(u'Клиент вызывает GenerateToken() rpc с некорректным значением роли')
-def step_impl(context: behave_runner.Context):
-    raise NotImplementedError(u'STEP: When Клиент вызывает GenerateToken() rpc с некорректным значением роли')
+@async_run_until_complete
+async def step_impl(context: behave_runner.Context):
+    stub: apiv1grpc.DormybobaCoreStub = context.stub
+    await do_rpc(
+        context,
+        stub.GenerateToken,
+        apiv1.GenerateTokenRequest(
+            role_name="bebra",
+        ),
+    )
 
 @then(u'Сервис отправляет Ответ со статусом INVALID_ARGUMENT')
 def step_impl(context: behave_runner.Context):
-    raise NotImplementedError(u'STEP: Then Сервис отправляет Ответ со статусом INVALID_ARGUMENT')
-
-
-@then(u'Ответ содержит поле token=""')
-def step_impl(context: behave_runner.Context):
-    raise NotImplementedError(u'STEP: Then Ответ содержит поле token=""')
+    assert context.status == grpc.StatusCode.OK

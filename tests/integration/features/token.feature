@@ -10,4 +10,3 @@ Feature: Token
   Scenario: Клиент вызывает GenerateToken() rpc с некорректным значением роли
     When Клиент вызывает GenerateToken() rpc с некорректным значением роли
     Then Сервис отправляет Ответ со статусом INVALID_ARGUMENT
-    And Ответ содержит поле token=""

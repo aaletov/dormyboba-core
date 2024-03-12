@@ -22,7 +22,7 @@ services:
     environment:
      POSTGRES_PASSWORD: "123456"
     volumes:
-      - ${CORE_HOME}/db:/docker-entrypoint-initdb.d
+      - ${CORE_HOME}/db/2_schema.sql:/docker-entrypoint-initdb.d/2_schema.sql
   nginx:
     image: nginx:1.25.4
     networks:
