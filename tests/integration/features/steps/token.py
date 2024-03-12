@@ -6,9 +6,11 @@ from behave.api.async_step import async_run_until_complete
 import grpc
 import jwt
 import google.protobuf.json_format as gpjson
+from sqlalchemy.orm import Session
 import dormyboba_api.v1api_pb2 as apiv1
 import dormyboba_api.v1api_pb2_grpc as apiv1grpc
 from dormyboba_core.entity import Token
+import dormyboba_core.model as model
 from tests.integration.features.steps.wrapper import do_rpc
 
 # Import common steps so decorator will be invoked
@@ -19,7 +21,15 @@ PUBLIC_KEY = "ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAACAQDHzEPNqqCOe4I+O834Rlvmm+Fbx3
 @when(u'Клиент вызывает GenerateToken() rpc с корректным значением роли')
 @async_run_until_complete
 async def step_impl(context: behave_runner.Context):
+    with Session(context.engine) as session, session.begin():
+        roles = [
+            model.DormybobaRole(role_name="student"),
+            model.DormybobaRole(role_name="council_member"),
+            model.DormybobaRole(role_name="admin"),
+        ]
+        session.add_all(roles)
     stub: apiv1grpc.DormybobaCoreStub = context.stub
+
     await do_rpc(
         context,
         stub.GenerateToken,
