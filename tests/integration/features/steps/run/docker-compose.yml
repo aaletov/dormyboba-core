@@ -29,6 +29,8 @@ services:
       dormyboba_default:
         aliases:
           - "sheets.googleapis.com"
+    depends_on:
+      - wiremock
     volumes:
       - ${CORE_HOME}/cert:/cert
       - ${CORE_HOME}/tests/integration/features/steps/run/nginx.conf:/etc/nginx/nginx.conf

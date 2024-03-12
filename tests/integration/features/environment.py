@@ -12,7 +12,7 @@ def before_all(context: behave_runner.Context):
     stub = apiv1grpc.DormybobaCoreStub(channel)
     context.stub = stub
 
-    context.engine = sqlalchemy.create_engine(TEST_DB_ADDR)
+    context.engine = sqlalchemy.create_engine(TEST_DB_ADDR, connect_args={"timeout": 30})
 
 def before_step(context: behave_runner.Context, step):
     model.Base.metadata.create_all(context.engine)
