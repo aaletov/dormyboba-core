@@ -27,7 +27,7 @@ def construct_engine(
     db: str,
 ) -> Engine:
     db_url=f"postgresql+psycopg2://{user}:{password}@{host}/{db}"
-    return create_engine(db_url, connect_args={"timeout": 30})
+    return create_engine(db_url, connect_args={"connect_timeout": 30})
 
 def construct_worksheet(
     config_dir: str,
