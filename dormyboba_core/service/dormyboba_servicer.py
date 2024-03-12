@@ -47,11 +47,14 @@ class DormybobaCoreServicer(apiv1grpc.DormybobaCoreServicer):
     def GenerateToken(
         self,
         request: apiv1.GenerateTokenRequest,
-        context: grpc.ServicerContext,
+        context: grpc.aio.ServicerContext,
     ):
         role = self.role_repository.getByName(request.role_name)
         if role == None:
-            return context.abort_with_status(grpc.StatusCode.INVALID_ARGUMENT)
+            return context.abort(
+                code=grpc.StatusCode.INVALID_ARGUMENT,
+                details="No such role",
+            )
 
         token = entity.Token.generate(request.role_name)
         return apiv1.GenerateTokenResponse(
@@ -61,7 +64,7 @@ class DormybobaCoreServicer(apiv1grpc.DormybobaCoreServicer):
     def UpdateUser(
         self,
         request: apiv1.UpdateUserRequest,
-        context: grpc.ServicerContext,
+        context: grpc.aio.ServicerContext,
     ):
         user = entity.DormybobaUser.from_api(request.user)
         user = self.user_repository.update(user)
@@ -72,7 +75,7 @@ class DormybobaCoreServicer(apiv1grpc.DormybobaCoreServicer):
     def GetUserById(
         self,
         request: apiv1.GetUserByIdRequest,
-        context: grpc.ServicerContext,
+        context: grpc.aio.ServicerContext,
     ):
         user = self.user_repository.getById(request.user_id)
 
@@ -86,7 +89,7 @@ class DormybobaCoreServicer(apiv1grpc.DormybobaCoreServicer):
     def GetAllInstitutes(
         self,
         request: None,
-        context: grpc.ServicerContext,
+        context: grpc.aio.ServicerContext,
     ):
         entity_institutes = self.institute_repository.list()
         return apiv1.GetAllInstitutesResponse(
@@ -96,11 +99,14 @@ class DormybobaCoreServicer(apiv1grpc.DormybobaCoreServicer):
     def GetInstituteByName(
         self,
         request: apiv1.GetInstituteByNameRequest,
-        context: grpc.ServicerContext,
+        context: grpc.aio.ServicerContext,
     ):
         institute = self.institute_repository.getByName(request.institute_name)
         if institute is None:
-            return context.abort_with_status(grpc.StatusCode.INVALID_ARGUMENT)
+            return context.abort(
+                code=grpc.StatusCode.INVALID_ARGUMENT,
+                details="No such instutute",
+            )
         return apiv1.GetInstituteByNameResponse(
             institute=institute.to_api(),
         )
@@ -108,7 +114,7 @@ class DormybobaCoreServicer(apiv1grpc.DormybobaCoreServicer):
     def GetAllAcademicTypes(
         self,
         request: None,
-        context: grpc.ServicerContext,
+        context: grpc.aio.ServicerContext,
     ):
         academic_types = self.academic_type_repository.list()
         return apiv1.GetAllAcademicTypesResponse(
@@ -118,7 +124,7 @@ class DormybobaCoreServicer(apiv1grpc.DormybobaCoreServicer):
     def GetAcademicTypeByName(
         self,
         request: apiv1.GetAcademicTypeByNameRequest,
-        context: grpc.ServicerContext,
+        context: grpc.aio.ServicerContext,
     ):
         academic_type = self.academic_type_repository.getByName(request.type_name)
         return apiv1.GetAcademicTypeByNameResponse(
@@ -128,7 +134,7 @@ class DormybobaCoreServicer(apiv1grpc.DormybobaCoreServicer):
     def CreateMailing(
         self,
         request: apiv1.CreateMailingRequest,
-        context: grpc.ServicerContext,
+        context: grpc.aio.ServicerContext,
     ):
         mailing = self.mailing_repository.add(
             entity.Mailing.from_api(request.mailing),
@@ -140,7 +146,7 @@ class DormybobaCoreServicer(apiv1grpc.DormybobaCoreServicer):
     def CreateQueue(
         self,
         request: apiv1.CreateQueueRequest,
-        context: grpc.ServicerContext,
+        context: grpc.aio.ServicerContext,
     ):
         queue = self.queue_repository.add(entity.Queue.from_api(request.queue))
         return apiv1.CreateQueueResponse(queue=queue.to_api())
@@ -148,7 +154,7 @@ class DormybobaCoreServicer(apiv1grpc.DormybobaCoreServicer):
     def AddPersonToQueue(
         self,
         request: apiv1.AddPersonToQueueRequest,
-        context: grpc.ServicerContext,
+        context: grpc.aio.ServicerContext,
     ):
         queue = self.queue_repository.addUser(request.queue_id, request.user_id)
         is_active = queue.active_user is not None
@@ -157,7 +163,7 @@ class DormybobaCoreServicer(apiv1grpc.DormybobaCoreServicer):
     def RemovePersonFromQueue(
         self,
         request: apiv1.RemovePersonFromQueueRequest,
-        context: grpc.ServicerContext,
+        context: grpc.aio.ServicerContext,
     ):
         queue = self.queue_repository.getById(request.queue_id)
         user = self.user_repository.getById(request.user_id)
@@ -167,7 +173,7 @@ class DormybobaCoreServicer(apiv1grpc.DormybobaCoreServicer):
     def PersonCompleteQueue(
         self,
         request: apiv1.PersonCompleteQueueRequest,
-        context: grpc.ServicerContext,
+        context: grpc.aio.ServicerContext,
     ):
         queue = self.queue_repository.getById(request.queue_id)
         queue = self.queue_repository.moveQueue(queue)
@@ -183,7 +189,7 @@ class DormybobaCoreServicer(apiv1grpc.DormybobaCoreServicer):
     def CreateDefect(
         self,
         request: apiv1.CreateDefectRequest,
-        context: grpc.ServicerContext,
+        context: grpc.aio.ServicerContext,
     ):
         defect = entity.Defect.from_api(request.defect)
         defect.defect_id = "DD" + str(random.randint(1000, 9999))
@@ -196,7 +202,7 @@ class DormybobaCoreServicer(apiv1grpc.DormybobaCoreServicer):
     def GetDefectById(
         self,
         request: apiv1.GetDefectByIdRequest,
-        context: grpc.ServicerContext,
+        context: grpc.aio.ServicerContext,
     ):
         defect = self.sheet_repository.getById(request.defect_id)
 
@@ -207,7 +213,7 @@ class DormybobaCoreServicer(apiv1grpc.DormybobaCoreServicer):
     def UpdateDefect(
         self,
         request: apiv1.UpdateDefectRequest,
-        context: grpc.ServicerContext,
+        context: grpc.aio.ServicerContext,
     ):
         defect = entity.Defect.from_api(request.defect)
         self.sheet_repository.update(defect)
@@ -216,7 +222,7 @@ class DormybobaCoreServicer(apiv1grpc.DormybobaCoreServicer):
     def AssignDefect(
         self,
         request: apiv1.AssignDefectRequest,
-        context: grpc.ServicerContext,
+        context: grpc.aio.ServicerContext,
     ):
         role = self.role_repository.getByName("admin")
         user = self.user_repository.listByRole(role)[0]
@@ -225,7 +231,7 @@ class DormybobaCoreServicer(apiv1grpc.DormybobaCoreServicer):
     async def MailingEvent(
         self,
         request: Any,
-        context: grpc.ServicerContext,
+        context: grpc.aio.ServicerContext,
     ):
         logger = logging.getLogger('dormyboba')
         while True:
@@ -244,7 +250,7 @@ class DormybobaCoreServicer(apiv1grpc.DormybobaCoreServicer):
     async def QueueEvent(
         self,
         request: Any,
-        context: grpc.ServicerContext,
+        context: grpc.aio.ServicerContext,
     ):
         while True:
             logging.debug("Checking queue events...")
