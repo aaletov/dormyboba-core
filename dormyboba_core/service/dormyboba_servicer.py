@@ -49,6 +49,10 @@ class DormybobaCoreServicer(apiv1grpc.DormybobaCoreServicer):
         request: apiv1.GenerateTokenRequest,
         context: grpc.ServicerContext,
     ):
+        role = self.role_repository.getByName(request.role_name)
+        if role == None:
+            return context.abort_with_status(grpc.StatusCode.INVALID_ARGUMENT)
+
         token = entity.Token.generate(request.role_name)
         return apiv1.GenerateTokenResponse(
             token=self.token_converter.encode(token),
