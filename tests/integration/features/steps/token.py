@@ -57,4 +57,4 @@ async def step_impl(context: behave_runner.Context):
 
 @then(u'Сервис отправляет Ответ со статусом INVALID_ARGUMENT')
 def step_impl(context: behave_runner.Context):
-    assert context.status == grpc.StatusCode.OK
+    assert context.status == grpc.StatusCode.INVALID_ARGUMENT
