@@ -7,6 +7,7 @@ from sqlalchemy.orm import Session
 import dormyboba_api.v1api_pb2 as apiv1
 import dormyboba_api.v1api_pb2_grpc as apiv1grpc
 import dormyboba_core.model as model
+import dormyboba_core.entity as entity
 from tests.integration.features.steps.wrapper import do_rpc
 
 # Import common steps so decorator will be invoked
@@ -40,18 +41,18 @@ async def step_impl(context: behave_runner.Context):
     res: apiv1.GetUserByIdResponse = await stub.GetUserById(apiv1.GetUserByIdRequest(
         user_id=when_user["user_id"],
     ))
-    user = res.user
+    user = entity.DormybobaUser.from_api(res.user)
     # Test is incorrect cause there is no GetRoleByName rpc
-    new_role = None
+    model_role = None
     with Session(context.engine) as session, session.begin():
-        new_role = session.scalar(
+        model_role = session.scalar(
             select(model.DormybobaRole)
             .where(model.DormybobaRole.role_name == when_user["role_name"])
         )
     #
-    user.role = new_role
+    user.role = entity.DormybobaRole.from_model(model_role)
     await do_rpc(context, stub.UpdateUser, apiv1.UpdateUserRequest(
-        user=user,
+        user=user.to_api(),
     ))
 
 @then(u'Ответ содержит информацию о пользователе')
