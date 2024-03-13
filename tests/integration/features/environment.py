@@ -15,8 +15,8 @@ def before_all(context: behave_runner.Context):
 
     context.engine = sqlalchemy.create_engine(TEST_DB_ADDR, connect_args={"connect_timeout": 30})
 
-def before_step(context: behave_runner.Context, step):
+def before_scenario(context: behave_runner.Context, scenario):
     model.Base.metadata.create_all(context.engine)
 
-def after_step(context: behave_runner.Context, step):
+def after_scenario(context: behave_runner.Context, scenario):
     model.Base.metadata.drop_all(context.engine)

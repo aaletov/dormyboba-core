@@ -38,7 +38,6 @@ def step_impl(context: behave_runner.Context):
 @async_run_until_complete
 async def step_impl(context: behave_runner.Context):
     when_user = parse_user(context)
-    logging.info(f"Used user object is {when_user}")
     stub: apiv1grpc.DormybobaCoreStub = context.stub
     res: apiv1.GetUserByIdResponse = await stub.GetUserById(apiv1.GetUserByIdRequest(
         user_id=when_user["user_id"],
@@ -53,7 +52,6 @@ async def step_impl(context: behave_runner.Context):
         )
         role = entity.DormybobaRole.from_model(model_role)
     #
-    assert role != None
     user.role = role
     await do_rpc(context, stub.UpdateUser, apiv1.UpdateUserRequest(
         user=user.to_api(),
