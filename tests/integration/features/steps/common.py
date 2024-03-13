@@ -13,8 +13,8 @@ def add_standard_roles(context: behave_runner.Context):
     engine: Engine = context.engine
     with Session(engine) as session, session.begin():
         roles = [
-            model.DormybobaRole(role_name="student"),
-            model.DormybobaRole(role_name="council_member"),
-            model.DormybobaRole(role_name="admin"),
+            model.DormybobaRole(role_id=1, role_name="student"),
+            model.DormybobaRole(role_id=2, role_name="council_member"),
+            model.DormybobaRole(role_id=3, role_name="admin"),
         ]
         session.add_all(roles)
