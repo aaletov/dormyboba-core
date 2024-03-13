@@ -17,6 +17,7 @@ def parse_user(context: behave_runner. Context) -> dict:
 
 @given(u'в базе содержится информация о пользователе')
 def step_impl(context: behave_runner.Context):
+    common.add_standard_roles(context)
     given_user = parse_user(context)
     engine: Engine = context.engine
     with Session(engine) as session, session.begin():
