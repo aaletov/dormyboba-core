@@ -25,10 +25,9 @@ def step_impl(context: behave_runner.Context):
             select(model.DormybobaRole)
             .where(model.DormybobaRole.role_name == given_user["role_name"])
         )
-        assert role != None
         user = model.DormybobaUser(
             user_id=given_user["user_id"],
-            role_id=role.role_id,
+            role=role,
             registration_complete=False,
         )
         session.add(user)
@@ -38,13 +37,20 @@ def step_impl(context: behave_runner.Context):
 async def step_impl(context: behave_runner.Context):
     when_user = parse_user(context)
     stub: apiv1grpc.DormybobaCoreStub = context.stub
+    user: apiv1.DormybobaUser = await stub.GetUserById(apiv1.GetUserByIdRequest(
+        user_id=when_user["user_Id"],
+    ))
+    # Test is incorrect cause there is no GetRoleByName rpc
+    new_role = None
+    with Session(context.engine) as session, session.begin():
+        new_role = session.scalar(
+            select(model.DormybobaRole)
+            .where(model.DormybobaRole.role_name == when_user["role_name"])
+        )
+    #
+    user.role = new_role
     await do_rpc(context, stub.UpdateUser, apiv1.UpdateUserRequest(
-        user=apiv1.DormybobaUser(
-            user_id=when_user["user_id"],
-            role=apiv1.DormybobaRole(
-                role_name=when_user["role_name"],
-            ),
-        ),
+        user=user,
     ))
 
 @then(u'Ответ содержит информацию о пользователе')
