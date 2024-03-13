@@ -28,7 +28,7 @@ def step_impl(context: behave_runner.Context):
         assert role != None
         user = model.DormybobaUser(
             user_id=given_user["user_id"],
-            role=role,
+            role_id=role.role_id,
             registration_complete=False,
         )
         session.add(user)
