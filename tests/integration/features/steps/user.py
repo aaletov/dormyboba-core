@@ -1,3 +1,4 @@
+import logging
 import json
 import behave.runner as behave_runner
 from behave import given, when, then
@@ -37,19 +38,23 @@ def step_impl(context: behave_runner.Context):
 @async_run_until_complete
 async def step_impl(context: behave_runner.Context):
     when_user = parse_user(context)
+    logging.info(f"Used user object is {when_user}")
     stub: apiv1grpc.DormybobaCoreStub = context.stub
     res: apiv1.GetUserByIdResponse = await stub.GetUserById(apiv1.GetUserByIdRequest(
         user_id=when_user["user_id"],
     ))
     user = entity.DormybobaUser.from_api(res.user)
     # Test is incorrect cause there is no GetRoleByName rpc
+    role = None
     with Session(context.engine) as session, session.begin():
         model_role = session.scalar(
             select(model.DormybobaRole)
             .where(model.DormybobaRole.role_name == when_user["role_name"])
         )
-        user.role = entity.DormybobaRole.from_model(model_role)
-
+        role = entity.DormybobaRole.from_model(model_role)
+    #
+    assert role != None
+    user.role = role
     await do_rpc(context, stub.UpdateUser, apiv1.UpdateUserRequest(
         user=user.to_api(),
     ))
