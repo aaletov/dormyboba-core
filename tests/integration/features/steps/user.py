@@ -25,6 +25,7 @@ def step_impl(context: behave_runner.Context):
             select(model.DormybobaRole)
             .where(model.DormybobaRole.role_name == given_user["role_name"])
         )
+        assert role != None
         user = model.DormybobaUser(
             user_id=given_user["user_id"],
             role=role,
