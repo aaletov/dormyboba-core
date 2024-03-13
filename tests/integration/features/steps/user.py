@@ -38,7 +38,7 @@ async def step_impl(context: behave_runner.Context):
     when_user = parse_user(context)
     stub: apiv1grpc.DormybobaCoreStub = context.stub
     user: apiv1.DormybobaUser = await stub.GetUserById(apiv1.GetUserByIdRequest(
-        user_id=when_user["user_Id"],
+        user_id=when_user["user_id"],
     ))
     # Test is incorrect cause there is no GetRoleByName rpc
     new_role = None
