@@ -37,7 +37,7 @@ def step_impl(context: behave_runner.Context):
 async def step_impl(context: behave_runner.Context):
     when_user = parse_user(context)
     stub: apiv1grpc.DormybobaCoreStub = context.stub
-    do_rpc(context, stub.UpdateUser, apiv1.UpdateUserRequest(
+    await do_rpc(context, stub.UpdateUser, apiv1.UpdateUserRequest(
         user=apiv1.DormybobaUser(
             user_id=when_user["user_id"],
             role=apiv1.DormybobaRole(
@@ -58,9 +58,10 @@ def step_impl(context: behave_runner.Context):
     pass
 
 @when(u'Клиент вызывает GetUserById() rpc с user_id = 3')
-def step_impl(context: behave_runner.Context):
+@async_run_until_complete
+async def step_impl(context: behave_runner.Context):
     stub: apiv1grpc.DormybobaCoreStub = context.stub
-    do_rpc(
+    await do_rpc(
         context,
         stub.GetUserById,
         apiv1.GetUserByIdRequest(
