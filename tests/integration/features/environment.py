@@ -1,3 +1,4 @@
+from behave import use_fixture
 import behave.runner as behave_runner
 import grpc
 import sqlalchemy
