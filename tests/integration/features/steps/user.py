@@ -43,14 +43,13 @@ async def step_impl(context: behave_runner.Context):
     ))
     user = entity.DormybobaUser.from_api(res.user)
     # Test is incorrect cause there is no GetRoleByName rpc
-    model_role = None
     with Session(context.engine) as session, session.begin():
         model_role = session.scalar(
             select(model.DormybobaRole)
             .where(model.DormybobaRole.role_name == when_user["role_name"])
         )
-    #
-    user.role = entity.DormybobaRole.from_model(model_role)
+        user.role = entity.DormybobaRole.from_model(model_role)
+
     await do_rpc(context, stub.UpdateUser, apiv1.UpdateUserRequest(
         user=user.to_api(),
     ))
