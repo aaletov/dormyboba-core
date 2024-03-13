@@ -66,7 +66,7 @@ def step_impl(context: behave_runner.Context):
 
 @given(u'в базе не содержится пользователей')
 def step_impl(context: behave_runner.Context):
-    pass
+    common.add_standard_roles(context)
 
 @when(u'Клиент вызывает GetUserById() rpc с user_id = 3')
 @async_run_until_complete
