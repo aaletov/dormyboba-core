@@ -37,9 +37,10 @@ def step_impl(context: behave_runner.Context):
 async def step_impl(context: behave_runner.Context):
     when_user = parse_user(context)
     stub: apiv1grpc.DormybobaCoreStub = context.stub
-    user: apiv1.DormybobaUser = await stub.GetUserById(apiv1.GetUserByIdRequest(
+    res: apiv1.GetUserByIdResponse = await stub.GetUserById(apiv1.GetUserByIdRequest(
         user_id=when_user["user_id"],
     ))
+    user = res.user
     # Test is incorrect cause there is no GetRoleByName rpc
     new_role = None
     with Session(context.engine) as session, session.begin():
