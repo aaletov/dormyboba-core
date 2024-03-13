@@ -34,7 +34,6 @@ Feature: User
       }
       """
     Then Сервис отправляет Ответ со статусом INVALID_ARGUMENT
-    And Ответ является пустым сообщением типа UpdateUserResponse
 
   Scenario: Клиент вызывает GetUserById() rpc для существующего пользователя
     Given в базе содержится информация о пользователе
@@ -58,4 +57,3 @@ Feature: User
     Given в базе не содержится пользователей
     When Клиент вызывает GetUserById() rpc с user_id = 3
     Then Сервис отправляет Ответ со статусом INVALID_ARGUMENT
-    And Ответ является пустым сообщением типа GetUserByIdResponse

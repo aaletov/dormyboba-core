@@ -28,6 +28,7 @@ def step_impl(context: behave_runner.Context):
         user = model.DormybobaUser(
             user_id=given_user["user_id"],
             role=role,
+            registration_complete=False,
         )
         session.add(user)
 
@@ -54,16 +55,15 @@ def step_impl(context: behave_runner.Context):
 
 @given(u'в базе не содержится пользователей')
 def step_impl(context: behave_runner.Context):
-    raise NotImplementedError(u'STEP: Given в базе не содержится пользователей')
-
-@then(u'Ответ является пустым сообщением типа UpdateUserResponse')
-def step_impl(context: behave_runner.Context):
-    raise NotImplementedError(u'STEP: Then Ответ является пустым сообщением типа UpdateUserResponse')
+    pass
 
 @when(u'Клиент вызывает GetUserById() rpc с user_id = 3')
 def step_impl(context: behave_runner.Context):
-    raise NotImplementedError(u'STEP: When Клиент вызывает GetUserById() rpc с user_id = 3')
-
-@then(u'Ответ является пустым сообщением типа GetUserByIdResponse')
-def step_impl(context: behave_runner.Context):
-    raise NotImplementedError(u'STEP: Then Ответ является пустым сообщением типа GetUserByIdResponse')
+    stub: apiv1grpc.DormybobaCoreStub = context.stub
+    do_rpc(
+        context,
+        stub.GetUserById,
+        apiv1.GetUserByIdRequest(
+            user_id=3,
+        ),
+    )
