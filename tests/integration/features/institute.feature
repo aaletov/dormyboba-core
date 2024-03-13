@@ -4,8 +4,8 @@ Feature: Institute
     Given в базе содержится информация об одном институте
     """
     {
-      institute_id: 3,
-      institute_name: "ИКНТ"
+      "institute_id": 3,
+      "institute_name": "ИКНТ"
     }
     """
     When Клиент вызывает GetAllInstitutes() rpc
@@ -14,8 +14,8 @@ Feature: Institute
       """
       [
         {
-          institute_id: 3,
-          institute_name: "ИКНТ"
+          "institute_id": 3,
+          "institute_name": "ИКНТ"
         }
       ]
       """
@@ -33,8 +33,8 @@ Feature: Institute
     Given в базе содержится информация об одном институте
     """
     {
-      institute_id: 3,
-      institute_name: "ИКНТ"
+      "institute_id": 3,
+      "institute_name": "ИКНТ"
     }
     """
     When Клиент вызывает GetInstituteByName() rpc с institute_name = "ИКНТ"
@@ -42,7 +42,7 @@ Feature: Institute
     And Ответ содержит информацию об институте
     """
       {
-        institute_id: 3,
-        institute_name: "ИКНТ"
+        "institute_id": 3,
+        "institute_name": "ИКНТ"
       }
     """

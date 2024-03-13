@@ -4,8 +4,8 @@ Feature: Academic Type
     Given в базе содержится информация об одном типе академ. программы
     """
     {
-      type_id: 3,
-      type_name: "Бакалавриат"
+      "type_id": 3,
+      "type_name": "Бакалавриат"
     }
     """
     When Клиент вызывает GetAllAcademicTypes() rpc
@@ -14,8 +14,8 @@ Feature: Academic Type
       """
       [
         {
-        type_id: 3,
-        type_name: "Бакалавриат"
+          "type_id": 3,
+          "type_name": "Бакалавриат"
         }
       ]
       """
@@ -33,8 +33,8 @@ Feature: Academic Type
     Given в базе содержится информация об одном типе академ. программы
     """
     {
-      type_id: 3,
-      type_name: "Бакалавриат"
+      "type_id": 3,
+      "type_name": "Бакалавриат"
     }
     """
     When Клиент вызывает GetAcademicTypeByName() rpc с type_name = "Бакалавриат"
@@ -42,7 +42,7 @@ Feature: Academic Type
     And Ответ содержит информацию о типе академ. программы
     """
     {
-      type_id: 3,
-      type_name: "Бакалавриат"
+      "type_id": 3,
+      "type_name": "Бакалавриат"
     }
     """

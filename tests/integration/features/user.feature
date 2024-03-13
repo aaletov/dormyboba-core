@@ -4,23 +4,23 @@ Feature: User
     Given в базе содержится информация о пользователе
       """
       {
-        user_id: 3,
-        role_name: "student"
+        "user_id": 3,
+        "role_name": "student"
       }
       """
     When Клиент вызывает UpdateUser() rpc с запросом
       """
       {
-        user_id: 3,
-        role_name: "council_member"
+        "user_id": 3,
+        "role_name": "council_member"
       }
       """
     Then Сервис отправляет Ответ со статусом OK
     And Ответ содержит информацию о пользователе
       """
       {
-        user_id: 3,
-        role_name: "council_member"
+        "user_id": 3,
+        "role_name": "council_member"
       }
       """
 
@@ -29,8 +29,8 @@ Feature: User
     When Клиент вызывает UpdateUser() rpc с запросом
       """
       {
-        user_id: 3,
-        role_name: "council_member"
+        "user_id": 3,
+        "role_name": "council_member"
       }
       """
     Then Сервис отправляет Ответ со статусом INVALID_ARGUMENT
@@ -40,8 +40,8 @@ Feature: User
     Given в базе содержится информация о пользователе
     """
     {
-      user_id: 3,
-      role_name: "council_member"
+      "user_id": 3,
+      "role_name": "council_member"
     }
     """
     When Клиент вызывает GetUserById() rpc с user_id = 3
@@ -49,8 +49,8 @@ Feature: User
     And Ответ содержит информацию о пользователе
     """
     {
-      user_id: 3,
-      role_name: "council_member"
+      "user_id": 3,
+      "role_name": "council_member"
     }
     """
 

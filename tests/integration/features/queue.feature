@@ -4,17 +4,17 @@ Feature: Queue
     When Клиент вызывает CreateQueue() rpc с запросом
       """
       {
-        title: "Название очереди",
-        open: "2024-03-02 20:05:25.231189"
+        "title": "Название очереди",
+        "open": "2024-03-02 20:05:25.231189"
       }
       """
     Then Сервис отправляет Ответ со статусом OK
     And Ответ содержит информацию о простой очереди
       """
       {
-        queue_id: {queue_id},
-        title: "Название очереди",
-        open: "2024-03-02 20:05:25.231189"
+        "queue_id": {queue_id},
+        "title": "Название очереди",
+        "open": "2024-03-02 20:05:25.231189"
       }
       """
 
@@ -24,15 +24,15 @@ Feature: Queue
     When Клиент вызывает AddPersonToQueue() rpc с запросом
       """
       {
-        queue_id: 3,
-        user_id: 4
+        "queue_id": 3,
+        "user_id": 4
       }
       """
     Then Сервис отправляет Ответ со статусом OK
     And Ответ содержит информацию о том, что добавленный пользователь является активным пользователем в очереди
       """
       {
-        is_active: true
+        "is_active": true
       }
       """
 
@@ -42,15 +42,15 @@ Feature: Queue
     When Клиент вызывает AddPersonToQueue() rpc с запросом
       """
       {
-        queue_id: 3,
-        user_id: 4
+        "queue_id": 3,
+        "user_id": 4
       }
       """
     Then Сервис отправляет Ответ со статусом OK
     And Ответ содержит информацию о том, что добавленный пользователь не является активным пользователем в очереди
       """
       {
-        is_active: false
+        "is_active": false
       }
       """
 
@@ -60,8 +60,8 @@ Feature: Queue
     When Клиент вызывает RemovePersonFromQueue() rpc с запросом
       """
       {
-        queue_id: 3,
-        user_id: 4
+        "queue_id": 3,
+        "user_id": 4
       }
       """
     Then Сервис отправляет Ответ со статусом OK
@@ -72,15 +72,15 @@ Feature: Queue
     When Клиент вызывает PersonCompleteQueueRequest() rpc с запросом
       """
       {
-        queue_id: 3,
-        user_id: 4
+        "queue_id": 3,
+        "user_id": 4
       }
       """
     Then Сервис отправляет Ответ со статусом OK
     And Ответ содержит информацию о том, что очередь теперь пуста
       """
       {
-        is_queue_empty: true,
-        active_user_id: null
+        "is_queue_empty": true,
+        "active_user_id": null
       }
       """
