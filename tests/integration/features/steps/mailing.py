@@ -21,7 +21,9 @@ def parse_mailing(context: behave_runner. Context) -> dict:
 @async_run_until_complete
 async def step_impl(context: behave_runner.Context):
     when_mailing = parse_mailing(context)
-    when_at = datetime.datetime.strptime(when_mailing["at"], '%Y-%m-%d %H:%M:%S.%f')
+    when_at = None
+    if "at" in when_mailing:
+        when_at = datetime.datetime.strptime(when_mailing["at"], '%Y-%m-%d %H:%M:%S.%f')
     stub: apiv1grpc.DormybobaCoreStub = context.stub
     await do_rpc(
         context,
@@ -29,7 +31,7 @@ async def step_impl(context: behave_runner.Context):
         apiv1.CreateMailingRequest(
             apiv1.Mailing(
                 theme=when_mailing["theme"],
-                text=when_mailing["text"],
+                text=when_mailing["mailing_text"],
                 at=when_at,
             ),
         ),
@@ -42,7 +44,7 @@ def step_impl(context: behave_runner.Context):
     res: apiv1.CreateMailingResponse = context.response
     assert res.mailing.HasField("mailing_id")
     assert then_mailing["theme"] == res.mailing.theme
-    assert then_mailing["text"] == res.mailing.mailing_text
+    assert then_mailing["mailing_text"] == res.mailing.mailing_text
 
 @then(u'Ответ содержит информацию об отложенной рассылке')
 def step_impl(context: behave_runner.Context):
@@ -50,7 +52,7 @@ def step_impl(context: behave_runner.Context):
     res: apiv1.CreateMailingResponse = context.response
     assert res.mailing.HasField("mailing_id")
     assert then_mailing["theme"] == res.mailing.theme
-    assert then_mailing["text"] == res.mailing.mailing_text
+    assert then_mailing["mailing_text"] == res.mailing.mailing_text
     then_at = datetime.datetime.strptime(then_mailing["at"], '%Y-%m-%d %H:%M:%S.%f')
 
     assert then_at == res.mailing.at
