@@ -1,3 +1,4 @@
+import json
 import behave.runner as behave_runner
 from behave.api.async_step import async_run_until_complete
 from behave import given, when, then
@@ -12,13 +13,16 @@ from tests.integration.features.steps.wrapper import do_rpc
 # Import common steps so decorator will be invoked
 import tests.integration.features.steps.common as common
 
+def parse_institute(context: behave_runner. Context) -> dict:
+    return json.loads(context.text)
+
 @given(u'в базе содержится информация об одном институте')
 def step_impl(context: behave_runner.Context):
     with Session(context.engine) as session, session.begin():
-        academic_types = [
+        institutes = [
             model.Institute(institute_id=35, institute_name="ИКНТ"),
         ]
-        session.add_all(academic_types)
+        session.add_all(institutes)
 
 @when(u'Клиент вызывает GetAllInstitutes() rpc')
 @async_run_until_complete
@@ -53,4 +57,7 @@ async def step_impl(context: behave_runner.Context):
 
 @then(u'Ответ содержит информацию об институте')
 def step_impl(context: behave_runner.Context):
-    raise NotImplementedError(u'STEP: Then Ответ содержит информацию об институте')
+    then_institute = parse_institute(context)
+    res: apiv1.GetInstituteByNameResponse = context.response
+    assert then_institute["institute_id"] == res.institute.institute_id
+    assert then_institute["institute_name"] == res.institute.institute_name
