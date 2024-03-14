@@ -42,7 +42,7 @@ async def step_impl(context: behave_runner.Context):
 def step_impl(context: behave_runner.Context):
     res: apiv1.GetAllInstitutesResponse = context.response
     assert len(res.institutes) == 1
-    then_institute = parse_institute(context)
+    then_institute = parse_institute(context)[0]
     institute = res.institutes[0]
     assert then_institute["institute_id"] == institute.institute_id
     assert then_institute["institute_name"] == institute.institute_name

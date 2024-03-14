@@ -1,3 +1,4 @@
+import json
 import behave.runner as behave_runner
 from behave.api.async_step import async_run_until_complete
 from behave import given, when, then
@@ -42,7 +43,7 @@ def step_impl(context: behave_runner.Context):
     res: apiv1.GetAllAcademicTypesResponse = context.response
     assert len(res.academic_types) == 1
     academic_type = res.academic_types[0]
-    then_academic_type = parse_academic_type(context)
+    then_academic_type = parse_academic_type(context)[0]
     assert then_academic_type["type_id"] == academic_type.type_id
     assert then_academic_type["type_name"] == academic_type.type_name
 
