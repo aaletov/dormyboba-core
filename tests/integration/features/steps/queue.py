@@ -45,7 +45,6 @@ def step_impl(context: behave_runner.Context):
 
 @given(u'в базе есть пустая очередь с queue_id = 3')
 def step_impl(context: behave_runner.Context):
-    given_queue = parse_queue(context)
     engine: Engine = context.engine
     with Session(engine) as session, session.begin():
         model_queue = model.Queue(
@@ -98,7 +97,6 @@ def step_impl(context: behave_runner.Context):
 @given(u'в базе есть непустая очередь с queue_id = 3')
 def step_impl(context: behave_runner.Context):
     common.add_standard_roles(context)
-    given_queue = parse_queue(context)
     engine: Engine = context.engine
     with Session(engine) as session, session.begin():
         model_queue = model.Queue(
@@ -132,7 +130,6 @@ def step_impl(context: behave_runner.Context):
 @given(u'в базе есть пользователь с user_id = 4, находящийся в очереди с queue_id = 3')
 def step_impl(context: behave_runner.Context):
     common.add_standard_roles(context)
-    given_queue = parse_queue(context)
     engine: Engine = context.engine
     with Session(engine) as session, session.begin():
         model_queue = model.Queue(
@@ -178,7 +175,6 @@ async def step_impl(context: behave_runner.Context):
 @given(u'активным пользователем в очереди с queue_id = 3 является пользователь с user_id = 4')
 def step_impl(context: behave_runner.Context):
     common.add_standard_roles(context)
-    given_queue = parse_queue(context)
     engine: Engine = context.engine
     with Session(engine) as session, session.begin():
         model_queue = model.Queue(
