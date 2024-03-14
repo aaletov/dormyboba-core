@@ -3,6 +3,7 @@ from behave.api.async_step import async_run_until_complete
 from behave import given, when, then
 from sqlalchemy import Engine
 from sqlalchemy.orm import Session
+from google.protobuf.empty_pb2 import Empty
 import dormyboba_api.v1api_pb2 as apiv1
 import dormyboba_api.v1api_pb2_grpc as apiv1grpc
 import dormyboba_core.model as model
@@ -26,6 +27,7 @@ async def step_impl(context: behave_runner.Context):
     await do_rpc(
         context,
         stub.GetAllAcademicTypes,
+        Empty(),
     )
 
 @then(u'Ответ содержит массив с единственным значением типа академ. программы')
