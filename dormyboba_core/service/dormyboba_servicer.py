@@ -67,6 +67,12 @@ class DormybobaCoreServicer(apiv1grpc.DormybobaCoreServicer):
         context: grpc.aio.ServicerContext,
     ):
         user = entity.DormybobaUser.from_api(request.user)
+        if self.user_repository.getById(user.user_id) == None:
+            return context.abort(
+                code=grpc.StatusCode.INVALID_ARGUMENT,
+                details="No such user",
+            )
+
         user = self.user_repository.update(user)
         return apiv1.UpdateUserResponse(
             user=user.to_api(),
