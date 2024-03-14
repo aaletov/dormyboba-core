@@ -39,11 +39,6 @@ def step_impl(context: behave_runner.Context):
 def step_impl(context: behave_runner.Context):
     pass
 
-@then(u'Ответ содержит пустой массив')
-def step_impl(context: behave_runner.Context):
-    res: apiv1.GetAllAcademicTypesResponse = context.response
-    assert len(res.academic_types) == 0
-
 @when(u'Клиент вызывает GetAcademicTypeByName() rpc с type_name = "Бакалавриат"')
 @async_run_until_complete
 async def step_impl(context: behave_runner.Context):
