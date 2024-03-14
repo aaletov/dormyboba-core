@@ -12,11 +12,18 @@ from tests.integration.features.steps.wrapper import do_rpc
 # Import common steps so decorator will be invoked
 import tests.integration.features.steps.common as common
 
+def parse_academic_type(context: behave_runner. Context) -> dict:
+    return json.loads(context.text)
+
 @given(u'в базе содержится информация об одном типе академ. программы')
 def step_impl(context: behave_runner.Context):
+    given_academic_type = parse_academic_type(context)
     with Session(context.engine) as session, session.begin():
         academic_types = [
-            model.AcademicType(type_id=3, type_name="Бакалавриат"),
+            model.AcademicType(
+                type_id=given_academic_type["type_id"],
+                type_name=given_academic_type["type_name"],
+            ),
         ]
         session.add_all(academic_types)
 
@@ -34,6 +41,10 @@ async def step_impl(context: behave_runner.Context):
 def step_impl(context: behave_runner.Context):
     res: apiv1.GetAllAcademicTypesResponse = context.response
     assert len(res.academic_types) == 1
+    academic_type = res.academic_types[0]
+    then_academic_type = parse_academic_type(context)
+    assert then_academic_type["type_id"] == academic_type.type_id
+    assert then_academic_type["type_name"] == academic_type.type_name
 
 @given(u'в базе не содержится информации о типах академ. программ')
 def step_impl(context: behave_runner.Context):
@@ -54,5 +65,6 @@ async def step_impl(context: behave_runner.Context):
 @then(u'Ответ содержит информацию о типе академ. программы')
 def step_impl(context: behave_runner.Context):
     res: apiv1.GetAcademicTypeByNameResponse = context.response
-    assert res.academic_type.type_id == 3
-    assert res.academic_type.type_name == "Бакалавриат"
+    then_academic_type = parse_academic_type(context)
+    assert then_academic_type["type_id"] == res.academic_type.type_id
+    assert then_academic_type["type_name"] == res.academic_type.type_name
