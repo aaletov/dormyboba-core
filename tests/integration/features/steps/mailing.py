@@ -1,21 +1,51 @@
+import json
+import datetime
 import behave.runner as behave_runner
+from behave.api.async_step import async_run_until_complete
 from behave import given, when, then
+from sqlalchemy import Engine
+from sqlalchemy.orm import Session
+from google.protobuf.empty_pb2 import Empty
+import dormyboba_api.v1api_pb2 as apiv1
+import dormyboba_api.v1api_pb2_grpc as apiv1grpc
+import dormyboba_core.model as model
+from tests.integration.features.steps.wrapper import do_rpc
+
+def parse_mailing(context: behave_runner. Context) -> dict:
+    return json.loads(context.text)
 
 @when(u'Клиент вызывает CreateMailing() rpc с запросом')
-def step_impl(context: behave_runner.Context):
-    raise NotImplementedError(u'STEP: When Клиент вызывает CreateMailing() rpc с запросом')
+@async_run_until_complete
+async def step_impl(context: behave_runner.Context):
+    when_mailing = parse_mailing(context)
+    when_at = datetime.datetime.strptime(when_mailing["at"], '%Y-%m-%d %H:%M:%S.%f')
+    stub: apiv1grpc.DormybobaCoreStub = context.stub
+    await do_rpc(
+        context,
+        stub.CreateMailing,
+        apiv1.CreateMailingRequest(
+            apiv1.Mailing(
+                theme=when_mailing["theme"],
+                text=when_mailing["text"],
+                at=when_at,
+            ),
+        ),
+    )
 
 
 @then(u'Ответ содержит информацию о простой рассылке')
 def step_impl(context: behave_runner.Context):
-    raise NotImplementedError(u'STEP: Then Ответ содержит информацию о простой рассылке')
-
+    then_mailing = parse_mailing(context)
+    res: apiv1.CreateMailingResponse = context.response
+    assert then_mailing["theme"] == res.mailing.theme
+    assert then_mailing["text"] == res.mailing.mailing_text
 
 @then(u'Ответ содержит информацию об отложенной рассылке')
 def step_impl(context: behave_runner.Context):
-    raise NotImplementedError(u'STEP: Then Ответ содержит информацию об отложенной рассылке')
+    then_mailing = parse_mailing(context)
+    res: apiv1.CreateMailingResponse = context.response
+    assert then_mailing["theme"] == res.mailing.theme
+    assert then_mailing["text"] == res.mailing.mailing_text
+    then_at = datetime.datetime.strptime(then_mailing["at"], '%Y-%m-%d %H:%M:%S.%f')
 
-
-@then(u'Ответ является пустым сообщением типа CreateMailingResponse')
-def step_impl(context: behave_runner.Context):
-    raise NotImplementedError(u'STEP: Then Ответ является пустым сообщением типа CreateMailingResponse')
+    assert then_at == res.mailing.at

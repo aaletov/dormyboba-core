@@ -48,4 +48,3 @@ Feature: Mailing
       }
       """
     Then Сервис отправляет Ответ со статусом INVALID_ARGUMENT
-    And Ответ является пустым сообщением типа CreateMailingResponse
