@@ -11,6 +11,9 @@ import dormyboba_api.v1api_pb2_grpc as apiv1grpc
 import dormyboba_core.model as model
 from tests.integration.features.steps.wrapper import do_rpc
 
+# Import common steps so decorator will be invoked
+import tests.integration.features.steps.common as common
+
 def parse_mailing(context: behave_runner. Context) -> dict:
     return json.loads(context.text)
 
@@ -37,6 +40,7 @@ async def step_impl(context: behave_runner.Context):
 def step_impl(context: behave_runner.Context):
     then_mailing = parse_mailing(context)
     res: apiv1.CreateMailingResponse = context.response
+    assert res.mailing.HasField("mailing_id")
     assert then_mailing["theme"] == res.mailing.theme
     assert then_mailing["text"] == res.mailing.mailing_text
 
@@ -44,6 +48,7 @@ def step_impl(context: behave_runner.Context):
 def step_impl(context: behave_runner.Context):
     then_mailing = parse_mailing(context)
     res: apiv1.CreateMailingResponse = context.response
+    assert res.mailing.HasField("mailing_id")
     assert then_mailing["theme"] == res.mailing.theme
     assert then_mailing["text"] == res.mailing.mailing_text
     then_at = datetime.datetime.strptime(then_mailing["at"], '%Y-%m-%d %H:%M:%S.%f')
