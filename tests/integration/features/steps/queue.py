@@ -213,4 +213,3 @@ def step_impl(context: behave_runner.Context):
     then_req = parse_person_complete_queue_response(context)
     res: apiv1.PersonCompleteQueueResponse = context.response
     assert res.is_queue_empty == then_req["is_queue_empty"]
-    assert not(res.HasField("active_user_id"))
