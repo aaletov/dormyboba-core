@@ -27,7 +27,9 @@ def add_standard_roles(context: behave_runner.Context):
         ]
         session.add_all(roles)
 
-def dt_to_timestamp(dt: datetime.datetime) -> Timestamp:
+def dt_to_timestamp(dt: datetime.datetime | None) -> Timestamp:
+    if dt is None:
+        return None
     timestamp = Timestamp()
     timestamp.FromDatetime(dt)
     return timestamp

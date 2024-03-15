@@ -60,7 +60,6 @@ def step_impl(context: behave_runner.Context):
 
 @given(u'в базе есть пользователь с user_id = 4')
 def step_impl(context: behave_runner.Context):
-    common.add_standard_roles(context)
     engine: Engine = context.engine
     with Session(engine) as session, session.begin():
         role = session.scalar(
@@ -132,7 +131,6 @@ def step_impl(context: behave_runner.Context):
 
 @given(u'в базе есть пользователь с user_id = 4, находящийся в очереди с queue_id = 3')
 def step_impl(context: behave_runner.Context):
-    common.add_standard_roles(context)
     engine: Engine = context.engine
     with Session(engine) as session, session.begin():
         model_queue = model.Queue(
