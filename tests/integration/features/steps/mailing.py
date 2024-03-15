@@ -19,6 +19,8 @@ def parse_mailing(context: behave_runner. Context) -> dict:
     if "at" in mailing:
         when_at = datetime.datetime.strptime(mailing["at"], '%Y-%m-%d %H:%M:%S.%f')
         mailing["at"] = when_at
+    else:
+        mailing["at"] = None
     return mailing
 
 @when(u'Клиент вызывает CreateMailing() rpc с запросом')

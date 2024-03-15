@@ -31,7 +31,7 @@ Feature: Mailing
     And Ответ содержит информацию об отложенной рассылке
       """
       {
-        "mailing_id": {mailing_id},
+        "mailing_id": "{mailing_id}",
         "theme": "Тема рассылки",
         "mailing_text": "Текст рассылки",
         "at": "2024-03-02 20:05:25.231189"
