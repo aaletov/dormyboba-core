@@ -113,6 +113,7 @@ def step_impl(context: behave_runner.Context):
         model_user = model.DormybobaUser(
             user_id=4,
             role=model_role,
+            registration_complete=False,
         )
         session.add(model_user)
         model_qtu = model.QueueToUser(
@@ -146,6 +147,7 @@ def step_impl(context: behave_runner.Context):
         model_user = model.DormybobaUser(
             user_id=4,
             role=model_role,
+            registration_complete=False,
         )
         session.add(model_user)
         model_qtu = model.QueueToUser(
@@ -184,6 +186,7 @@ def step_impl(context: behave_runner.Context):
         model_user = model.DormybobaUser(
             user_id=4,
             role=model_role,
+            registration_complete=False,
         )
         session.add(model_user)
         model_qtu = model.QueueToUser(
