@@ -150,7 +150,7 @@ class DormybobaCoreServicer(apiv1grpc.DormybobaCoreServicer):
                 details="\"at\" cannot be less than current datetime",
             )
         mailing = self.mailing_repository.add(
-            mailing.to_api(),
+            mailing,
         )
         return apiv1.CreateMailingResponse(
             mailing=mailing.to_api(),
