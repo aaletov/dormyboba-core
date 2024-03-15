@@ -39,22 +39,29 @@ def step_impl(context: behave_runner.Context):
 async def step_impl(context: behave_runner.Context):
     when_user = parse_user(context)
     stub: apiv1grpc.DormybobaCoreStub = context.stub
-    res: apiv1.GetUserByIdResponse = await stub.GetUserById(apiv1.GetUserByIdRequest(
-        user_id=when_user["user_id"],
-    ))
-    user = entity.DormybobaUser.from_api(res.user)
-    # Test is incorrect cause there is no GetRoleByName rpc
-    role = None
-    with Session(context.engine) as session, session.begin():
-        model_role = session.scalar(
-            select(model.DormybobaRole)
-            .where(model.DormybobaRole.role_name == when_user["role_name"])
-        )
-        role = entity.DormybobaRole.from_model(model_role)
-    #
-    user.role = role
+    await do_rpc(
+        context,
+        stub.GetUserById,
+        apiv1.GetUserByIdRequest(
+            user_id=when_user["user_id"],
+        ),
+    )
+    api_user = None
+    if context.response is not None:
+        user = entity.DormybobaUser.from_api(context.response.user)
+        # Test is incorrect cause there is no GetRoleByName rpc
+        role = None
+        with Session(context.engine) as session, session.begin():
+            model_role = session.scalar(
+                select(model.DormybobaRole)
+                .where(model.DormybobaRole.role_name == when_user["role_name"])
+            )
+            role = entity.DormybobaRole.from_model(model_role)
+        #
+        user.role = role
+        api_user = user.to_api()
     await do_rpc(context, stub.UpdateUser, apiv1.UpdateUserRequest(
-        user=user.to_api(),
+        user=api_user,
     ))
 
 @then(u'Ответ содержит информацию о пользователе')
