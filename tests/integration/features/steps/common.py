@@ -1,7 +1,7 @@
 import datetime
 import behave.runner as behave_runner
 from behave import given, when, then
-from sqlalchemy import Engine
+from sqlalchemy import Engine, select
 from sqlalchemy.orm import Session
 from google.protobuf.timestamp_pb2 import Timestamp
 import dormyboba_api.v1api_pb2 as apiv1
@@ -20,6 +20,11 @@ def step_impl(context: behave_runner.Context, field: str):
 def add_standard_roles(context: behave_runner.Context):
     engine: Engine = context.engine
     with Session(engine) as session, session.begin():
+        existing_roles = session.scalars(
+            select(model.DormybobaRole)
+        )
+        if len(existing_roles) == 3:
+            return
         roles = [
             model.DormybobaRole(role_id=1, role_name="student"),
             model.DormybobaRole(role_id=2, role_name="council_member"),
