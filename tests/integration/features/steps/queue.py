@@ -29,7 +29,7 @@ async def step_impl(context: behave_runner.Context):
         apiv1.CreateQueueRequest(
             queue=apiv1.Queue(
                 title=when_queue["title"],
-                open=when_queue["open"],
+                open=when_open,
             ),
         ),
     )
