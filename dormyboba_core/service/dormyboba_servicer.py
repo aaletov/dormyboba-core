@@ -144,7 +144,7 @@ class DormybobaCoreServicer(apiv1grpc.DormybobaCoreServicer):
         context: grpc.aio.ServicerContext,
     ):
         mailing = entity.Mailing.from_api(request.mailing)
-        if mailing.at < datetime.datetime.now():
+        if (mailing.at is not None) and (mailing.at < datetime.datetime.now()):
             return context.abort(
                 code=grpc.StatusCode.INVALID_ARGUMENT,
                 details="\"at\" cannot be less than current datetime",
