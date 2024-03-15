@@ -1,7 +1,7 @@
 # This workflow will install Python dependencies, run tests and lint with a variety of Python versions
 # For more information see: https://docs.github.com/en/actions/automating-builds-and-tests/building-and-testing-python
 
-name: PR
+name: Default
 
 on:
   push:
@@ -101,7 +101,6 @@ jobs:
       matrix:
         python-version: ["3.10"]
     needs: build
-    if: ${{ github.event_name == 'pull_request' }}
     env:
       CORE_HOME: ${{ github.workspace }}
       WIREMOCK_DIR: ${{ github.workspace }}/wiremock
