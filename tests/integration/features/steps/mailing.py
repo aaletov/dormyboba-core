@@ -15,28 +15,28 @@ from tests.integration.features.steps.wrapper import do_rpc
 import tests.integration.features.steps.common as common
 
 def parse_mailing(context: behave_runner. Context) -> dict:
-    return json.loads(context.text)
+    mailing = json.loads(context.text)
+    if "at" in mailing:
+        when_at = datetime.datetime.strptime(mailing["at"], '%Y-%m-%d %H:%M:%S.%f')
+        mailing["at"] = when_at
+    return mailing
 
 @when(u'Клиент вызывает CreateMailing() rpc с запросом')
 @async_run_until_complete
 async def step_impl(context: behave_runner.Context):
     when_mailing = parse_mailing(context)
-    when_at = None
-    if "at" in when_mailing:
-        when_at = datetime.datetime.strptime(when_mailing["at"], '%Y-%m-%d %H:%M:%S.%f')
     stub: apiv1grpc.DormybobaCoreStub = context.stub
     await do_rpc(
         context,
         stub.CreateMailing,
         apiv1.CreateMailingRequest(
-            apiv1.Mailing(
+            mailing=apiv1.Mailing(
                 theme=when_mailing["theme"],
                 mailing_text=when_mailing["mailing_text"],
-                at=when_at,
+                at=common.dt_to_timestamp(when_mailing["at"]),
             ),
         ),
     )
-
 
 @then(u'Ответ содержит информацию о простой рассылке')
 def step_impl(context: behave_runner.Context):
@@ -53,6 +53,5 @@ def step_impl(context: behave_runner.Context):
     assert res.mailing.HasField("mailing_id")
     assert then_mailing["theme"] == res.mailing.theme
     assert then_mailing["mailing_text"] == res.mailing.mailing_text
-    then_at = datetime.datetime.strptime(then_mailing["at"], '%Y-%m-%d %H:%M:%S.%f')
 
-    assert then_at == res.mailing.at
+    assert then_mailing["at"] == res.mailing.at.ToDatetime()

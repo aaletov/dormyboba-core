@@ -6,6 +6,7 @@ from behave import given, when, then
 from sqlalchemy import Engine, select
 from sqlalchemy.orm import Session
 from google.protobuf.empty_pb2 import Empty
+from google.protobuf.timestamp_pb2 import Timestamp
 import dormyboba_api.v1api_pb2 as apiv1
 import dormyboba_api.v1api_pb2_grpc as apiv1grpc
 import dormyboba_core.model as model
@@ -14,22 +15,24 @@ from tests.integration.features.steps.wrapper import do_rpc
 # Import common steps so decorator will be invoked
 import tests.integration.features.steps.common as common
 
-def parse_queue(context: behave_runner. Context) -> dict:
-    return json.loads(context.text)
+def parse_queue(context: behave_runner.Context) -> dict:
+    queue = json.loads(context.text)
+    text_open = datetime.datetime.strptime(queue["open"], '%Y-%m-%d %H:%M:%S.%f')
+    queue["open"] = text_open
+    return queue
 
 @when(u'Клиент вызывает CreateQueue() rpc с запросом')
 @async_run_until_complete
 async def step_impl(context: behave_runner.Context):
     when_queue = parse_queue(context)
     stub: apiv1grpc.DormybobaCoreStub = context.stub
-    when_open = datetime.datetime.strptime(when_queue["open"], '%Y-%m-%d %H:%M:%S.%f')
     await do_rpc(
         context,
         stub.CreateQueue,
         apiv1.CreateQueueRequest(
             queue=apiv1.Queue(
                 title=when_queue["title"],
-                open=when_open,
+                open=common.dt_to_timestamp(when_queue["open"]),
             ),
         ),
     )
@@ -38,10 +41,9 @@ async def step_impl(context: behave_runner.Context):
 def step_impl(context: behave_runner.Context):
     res: apiv1.CreateQueueResponse = context.response
     then_queue = parse_queue(context)
-    then_open = datetime.datetime.strptime(then_queue["open"], '%Y-%m-%d %H:%M:%S.%f')
     assert res.queue.HasField("queue_id")
     assert then_queue["title"] == res.queue.title
-    assert then_open == res.queue.open
+    assert then_queue["open"] == res.queue.open.ToDatetime()
 
 @given(u'в базе есть пустая очередь с queue_id = 3')
 def step_impl(context: behave_runner.Context):

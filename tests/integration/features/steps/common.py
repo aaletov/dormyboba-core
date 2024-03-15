@@ -24,3 +24,8 @@ def add_standard_roles(context: behave_runner.Context):
             model.DormybobaRole(role_id=3, role_name="admin"),
         ]
         session.add_all(roles)
+
+def dt_to_timestamp(dt: datetime.datetime) -> Timestamp:
+    timestamp = Timestamp()
+    timestamp.FromDatetime(dt)
+    return timestamp
