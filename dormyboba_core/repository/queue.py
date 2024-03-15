@@ -47,6 +47,8 @@ class SqlAlchemyQueueRepository(QueueRepository):
         model_queue = queue.to_model()
         with Session(self.engine) as session, session.begin():
             session.add(model_queue)
+            session.flush()
+            session.refresh(model_queue)
             return entity.Queue.from_model(model_queue)
 
     def getById(self, queue_id: int) -> Optional[entity.Queue]:

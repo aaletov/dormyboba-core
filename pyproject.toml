@@ -32,6 +32,9 @@ pytest-cov = "^4.1.0"
 dependency-injector = "^4.41.0"
 
 
+[tool.poetry.group.dev.dependencies]
+behave = "^1.2.6"
+
 [build-system]
 requires = ["poetry-core"]
 build-backend = "poetry.core.masonry.api"

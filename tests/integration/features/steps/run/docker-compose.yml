@@ -1,0 +1,45 @@
+version: "3.1"
+
+services:
+  dormyboba_core:
+    image: "${CORE_IMAGE}"
+    networks:
+      - dormyboba_default
+    ports:
+      - "50051:50051"
+      - "8000:8000"
+    volumes:
+      - ${CORE_HOME}/tests/integration/features/steps/run/config:/config
+    depends_on:
+      - postgresql
+      - nginx
+  postgresql:
+    image: "postgres:15.5-alpine3.18"
+    networks:
+      - dormyboba_default
+    ports:
+      - "5432:5432"
+    environment:
+     POSTGRES_PASSWORD: "123456"
+    volumes:
+      - ${CORE_HOME}/db/2_db.sql:/docker-entrypoint-initdb.d/2_db.sql
+  nginx:
+    image: nginx:1.25.4
+    networks:
+      dormyboba_default:
+        aliases:
+          - "sheets.googleapis.com"
+    depends_on:
+      - wiremock
+    volumes:
+      - ${CORE_HOME}/cert:/cert
+      - ${CORE_HOME}/tests/integration/features/steps/run/nginx.conf:/etc/nginx/nginx.conf
+  wiremock:
+    image: wiremock/wiremock:3.4.1
+    networks:
+      - dormyboba_default
+    volumes:
+      - ${WIREMOCK_DIR}:/home/wiremock
+
+networks:
+  dormyboba_default:

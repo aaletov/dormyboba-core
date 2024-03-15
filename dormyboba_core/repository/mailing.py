@@ -31,6 +31,8 @@ class SqlAlchemyMailingRepository(MailingRepository):
         model_mailing = mailing.to_model()
         with Session(self.engine) as session, session.begin():
             session.add(model_mailing)
+            session.flush()
+            session.refresh(model_mailing)
             return entity.Mailing.from_model(model_mailing)
 
     def getEvent(self) -> Optional[entity.MailingEvent]:

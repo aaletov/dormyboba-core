@@ -1,7 +1,3 @@
-\c postgres;
-
-CREATE DATABASE dormyboba;
-
 \c dormyboba;
 
 CREATE TABLE "academic_type" (
