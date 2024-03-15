@@ -101,13 +101,6 @@ def step_impl(context: behave_runner.Context):
     common.add_standard_roles(context)
     engine: Engine = context.engine
     with Session(engine) as session, session.begin():
-        model_queue = model.Queue(
-            queue_id=3,
-            title="Title",
-            open=datetime.datetime.now(),
-            is_event_generated=True,
-        )
-        session.add(model_queue)
         model_role = session.scalar(
             select(model.DormybobaRole)
             .limit(1)
@@ -118,12 +111,14 @@ def step_impl(context: behave_runner.Context):
             registration_complete=False,
         )
         session.add(model_user)
-        model_qtu = model.QueueToUser(
-            queue_id=model_queue.queue_id,
-            user_id=model_user.user_id,
-            joined=datetime.datetime.now(),
+        model_queue = model.Queue(
+            queue_id=3,
+            title="Title",
+            open=datetime.datetime.now(),
+            is_event_generated=True,
+            active_user=model_user,
         )
-        session.add(model_qtu)
+        session.add(model_queue)
 
 @then(u'Ответ содержит информацию о том, что добавленный пользователь не является активным пользователем в очереди')
 def step_impl(context: behave_runner.Context):
@@ -187,12 +182,11 @@ def step_impl(context: behave_runner.Context):
             registration_complete=False,
         )
         session.add(model_user)
-        model_qtu = model.QueueToUser(
-            queue_id=3,
-            user_id=model_user.user_id,
-            joined=datetime.datetime.now(),
+        model_queue = session.scalar(
+            select(model.Queue)
+            .where(model.Queue.queue_id == 3)
         )
-        session.add(model_qtu)
+        model_queue.active_user = model_user
 
 def parse_person_complete_queue_request(context: behave_runner. Context) -> dict:
     return json.loads(context.text)
