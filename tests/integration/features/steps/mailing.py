@@ -31,7 +31,7 @@ async def step_impl(context: behave_runner.Context):
         apiv1.CreateMailingRequest(
             apiv1.Mailing(
                 theme=when_mailing["theme"],
-                text=when_mailing["mailing_text"],
+                mailing_text=when_mailing["mailing_text"],
                 at=when_at,
             ),
         ),
