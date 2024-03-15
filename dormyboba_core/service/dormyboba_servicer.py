@@ -2,6 +2,7 @@ from typing import Any, Optional
 import random
 import logging
 import asyncio
+import datetime
 import grpc
 from google.protobuf.empty_pb2 import Empty
 import dormyboba_api.v1api_pb2 as apiv1
@@ -142,8 +143,14 @@ class DormybobaCoreServicer(apiv1grpc.DormybobaCoreServicer):
         request: apiv1.CreateMailingRequest,
         context: grpc.aio.ServicerContext,
     ):
+        mailing = entity.Mailing.from_api(request.mailing)
+        if mailing.at < datetime.datetime.now():
+            return context.abort(
+                code=grpc.StatusCode.INVALID_ARGUMENT,
+                details="\"at\" cannot be less than current datetime",
+            )
         mailing = self.mailing_repository.add(
-            entity.Mailing.from_api(request.mailing),
+            mailing.to_api(),
         )
         return apiv1.CreateMailingResponse(
             mailing=mailing.to_api(),
