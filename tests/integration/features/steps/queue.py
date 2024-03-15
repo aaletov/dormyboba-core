@@ -177,13 +177,6 @@ def step_impl(context: behave_runner.Context):
     common.add_standard_roles(context)
     engine: Engine = context.engine
     with Session(engine) as session, session.begin():
-        model_queue = model.Queue(
-            queue_id=3,
-            title="Title",
-            open=datetime.datetime.now(),
-            is_event_generated=True,
-        )
-        session.add(model_queue)
         model_role = session.scalar(
             select(model.DormybobaRole)
             .limit(1)
@@ -194,7 +187,7 @@ def step_impl(context: behave_runner.Context):
         )
         session.add(model_user)
         model_qtu = model.QueueToUser(
-            queue_id=model_queue.queue_id,
+            queue_id=3,
             user_id=model_user.user_id,
             joined=datetime.datetime.now(),
         )
