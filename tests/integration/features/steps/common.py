@@ -22,7 +22,7 @@ def add_standard_roles(context: behave_runner.Context):
     with Session(engine) as session, session.begin():
         existing_roles = session.scalars(
             select(model.DormybobaRole)
-        )
+        ).all()
         if len(existing_roles) == 3:
             return
         roles = [
