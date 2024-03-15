@@ -12,7 +12,7 @@ Feature: Mailing
     And Ответ содержит информацию о простой рассылке
       """
       {
-        "mailing_id": {mailing_id},
+        "mailing_id": "{mailing_id}",
         "theme": "Тема рассылки",
         "mailing_text": "Текст рассылки"
       }

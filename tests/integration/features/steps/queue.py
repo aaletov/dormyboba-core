@@ -60,6 +60,7 @@ def step_impl(context: behave_runner.Context):
 
 @given(u'в базе есть пользователь с user_id = 4')
 def step_impl(context: behave_runner.Context):
+    common.add_standard_roles(context)
     engine: Engine = context.engine
     with Session(engine) as session, session.begin():
         role = session.scalar(
@@ -112,7 +113,7 @@ def step_impl(context: behave_runner.Context):
             .limit(1)
         )
         model_user = model.DormybobaUser(
-            user_id=4,
+            user_id=1,
             role=model_role,
             registration_complete=False,
         )
@@ -133,13 +134,10 @@ def step_impl(context: behave_runner.Context):
 def step_impl(context: behave_runner.Context):
     engine: Engine = context.engine
     with Session(engine) as session, session.begin():
-        model_queue = model.Queue(
-            queue_id=3,
-            title="Title",
-            open=datetime.datetime.now(),
-            is_event_generated=True,
+        model_queue = session.scalar(
+            select(model.Queue)
+            .where(model.Queue.queue_id == 3)
         )
-        session.add(model_queue)
         model_role = session.scalar(
             select(model.DormybobaRole)
             .limit(1)
