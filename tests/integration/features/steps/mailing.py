@@ -1,3 +1,4 @@
+from typing import Optional
 import json
 import datetime
 import behave.runner as behave_runner
@@ -18,13 +19,13 @@ from pydantic import BaseModel
 
 class Mailing(BaseModel):
     mailing_id: int
-    theme: str
+    theme: Optional[str] = None
     mailing_text: str
-    at: str
+    at: Optional[str] = None
 
     def to_api(self) -> apiv1.Mailing:
         dt_at = None
-        if self.at != "":
+        if self.at is not None:
             dt_at = datetime.datetime.strptime(self.at, '%Y-%m-%d %H:%M:%S.%f')
         return apiv1.Mailing(
             mailing_id=self.mailing_id,
