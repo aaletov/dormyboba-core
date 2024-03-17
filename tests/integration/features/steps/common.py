@@ -45,7 +45,7 @@ class DormybobaUser(BaseModel):
     def to_model(self) -> model.DormybobaUser:
         return model.DormybobaUser(
             user_id=self.user_id,
-            role=self.role.to_model(),
+            role_id=self.role.to_model().role_id,
             registration_complete=self.registration_complete,
         )
 
