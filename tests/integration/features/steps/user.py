@@ -22,7 +22,9 @@ class UpdateUserRequest(BaseModel):
     user: common.DormybobaUser
 
     def to_api(self) -> apiv1.UpdateUserRequest:
-        return apiv1.UpdateUserRequest(role_name=self.role_name)
+        return apiv1.UpdateUserRequest(
+            user=self.user.to_api(),
+        )
 
 @when(u'Клиент вызывает UpdateUser\(\) rpc(?P<anything>.*)')
 @async_run_until_complete
