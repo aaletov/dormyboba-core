@@ -1,3 +1,4 @@
+import json
 import datetime
 import behave.runner as behave_runner
 from behave import given, when, then
@@ -17,20 +18,21 @@ def step_impl(context: behave_runner.Context, field: str):
     res: apiv1.GetAllAcademicTypesResponse = context.response
     assert len(getattr(res, field)) == 0
 
-def add_standard_roles(context: behave_runner.Context):
+from pydantic import BaseModel
+
+class DormybobaRole(BaseModel):
+    role_id: int
+    role_name: str
+
+    def to_model(self) -> model.DormybobaRole:
+        return model.DormybobaRole(role_id=self.role_id, role_name=self.role_name)
+
+@given(u'В базе есть роль "{role}"')
+def step_impl(context: behave_runner.Context, role: str):
+    spec = DormybobaRole(**json.loads(context.text))
     engine: Engine = context.engine
     with Session(engine) as session, session.begin():
-        existing_roles = session.scalars(
-            select(model.DormybobaRole)
-        ).all()
-        if len(existing_roles) == 3:
-            return
-        roles = [
-            model.DormybobaRole(role_id=1, role_name="student"),
-            model.DormybobaRole(role_id=2, role_name="council_member"),
-            model.DormybobaRole(role_id=3, role_name="admin"),
-        ]
-        session.add_all(roles)
+        session.add(spec.to_model())
 
 def dt_to_timestamp(dt: datetime.datetime | None) -> Timestamp:
     if dt is None:
