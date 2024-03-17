@@ -29,7 +29,7 @@ class GenerateTokenRequest(BaseModel):
     def to_api(self) -> apiv1.GenerateTokenRequest:
         return apiv1.GenerateTokenRequest(role_name="role_name")
 
-@when(u'Клиент вызывает GenerateToken() rpc(?P<anything>.*)')
+@when(u'Клиент вызывает GenerateToken\(\) rpc(?P<anything>.*)')
 @async_run_until_complete
 async def step_impl(context: behave_runner.Context, anything: str):
     stub: apiv1grpc.DormybobaCoreStub = context.stub
