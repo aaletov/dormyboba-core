@@ -87,12 +87,6 @@ class DormybobaCoreServicer(apiv1grpc.DormybobaCoreServicer):
         user = self.user_repository.getById(request.user_id)
 
         if user is None:
-            # Incorrect! Delete after acceptance
-            return context.abort(
-                code=grpc.StatusCode.INVALID_ARGUMENT,
-                details="No such user",
-            )
-            # Correct
             return apiv1.GetUserByIdResponse()
 
         return apiv1.GetUserByIdResponse(
