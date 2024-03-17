@@ -26,7 +26,7 @@ class UpdateUserRequest(BaseModel):
 
 @when(u'Клиент вызывает UpdateUser\(\) rpc(?P<anything>.*)')
 @async_run_until_complete
-async def step_impl(context: behave_runner.Context):
+async def step_impl(context: behave_runner.Context, anything: str):
     stub: apiv1grpc.DormybobaCoreStub = context.stub
     spec = UpdateUserRequest(
         user=common.DormybobaUser(**json.loads(context.text)),
@@ -53,7 +53,7 @@ class GetUserByIdRequest(BaseModel):
 
 @when(u'Клиент вызывает GetUserById\(\) rpc(?P<anything>.*)')
 @async_run_until_complete
-async def step_impl(context: behave_runner.Context):
+async def step_impl(context: behave_runner.Context, anything: str):
     stub: apiv1grpc.DormybobaCoreStub = context.stub
     spec = GetUserByIdRequest(**json.loads(context.text))
 

@@ -40,15 +40,21 @@ def step_impl(context: behave_runner.Context, role: str):
 class DormybobaUser(BaseModel):
     user_id: int
     role: DormybobaRole
+    registration_complete: bool = False
 
     def to_model(self) -> model.DormybobaUser:
         return model.DormybobaUser(
             user_id=self.user_id,
             role=self.role.to_model(),
+            registration_complete=self.registration_complete,
         )
 
     def to_api(self) -> apiv1.DormybobaUser:
-        return apiv1.DormybobaUser(user_id=self.user_id, role=self.role.to_api())
+        return apiv1.DormybobaUser(
+            user_id=self.user_id,
+            role=self.role.to_api(),
+            is_registered=self.registration_complete,
+        )
 
 use_step_matcher("re")
 
