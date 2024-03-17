@@ -27,7 +27,7 @@ class GenerateTokenRequest(BaseModel):
     role_name: str
 
     def to_api(self) -> apiv1.GenerateTokenRequest:
-        return apiv1.GenerateTokenRequest(role_name="role_name")
+        return apiv1.GenerateTokenRequest(role_name=self.role_name)
 
 @when(u'Клиент вызывает GenerateToken\(\) rpc(?P<anything>.*)')
 @async_run_until_complete
