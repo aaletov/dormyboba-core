@@ -84,6 +84,23 @@ def step_impl(context: behave_runner.Context, academic_type_name: str):
     with Session(engine) as session, session.begin():
         session.add(spec.to_model())
 
+class Institute(BaseModel):
+    institute_id: int
+    institute_name: str
+
+    def to_model(self) -> model.Institute:
+        return model.Institute(institute_id=self.institute_id, institute_name=self.institute_name)
+
+    def to_model(self) -> apiv1.Institute:
+        return apiv1.Institute(institute_id=self.institute_id, institute_name=self.institute_name)
+
+@given(u'в базе есть институт "{institute_name}"')
+def step_impl(context: behave_runner.Context, institute_name: str):
+    spec = Institute(**json.loads(context.text))
+    engine: Engine = context.engine
+    with Session(engine) as session, session.begin():
+        session.add(spec.to_model())
+
 def dt_to_timestamp(dt: datetime.datetime | None) -> Timestamp:
     if dt is None:
         return None

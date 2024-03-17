@@ -1,7 +1,7 @@
 import json
 import behave.runner as behave_runner
 from behave.api.async_step import async_run_until_complete
-from behave import given, when, then
+from behave import use_step_matcher, given, when, then
 from sqlalchemy import Engine
 from sqlalchemy.orm import Session
 from google.protobuf.empty_pb2 import Empty
@@ -13,22 +13,9 @@ from tests.integration.features.steps.wrapper import do_rpc
 # Import common steps so decorator will be invoked
 import tests.integration.features.steps.common as common
 
-def parse_institute(context: behave_runner. Context) -> dict:
-    return json.loads(context.text)
+use_step_matcher("re")
 
-@given(u'в базе содержится информация об одном институте')
-def step_impl(context: behave_runner.Context):
-    given_institute = parse_institute(context)
-    with Session(context.engine) as session, session.begin():
-        institutes = [
-            model.Institute(
-                institute_id=given_institute["institute_id"],
-                institute_name=given_institute["institute_name"],
-            ),
-        ]
-        session.add_all(institutes)
-
-@when(u'Клиент вызывает GetAllInstitutes() rpc')
+@when(u'Клиент вызывает GetAllInstitutes\(\) rpc(?P<anything>.*)')
 @async_run_until_complete
 async def step_impl(context: behave_runner.Context):
     stub: apiv1grpc.DormybobaCoreStub = context.stub
@@ -42,30 +29,39 @@ async def step_impl(context: behave_runner.Context):
 def step_impl(context: behave_runner.Context):
     res: apiv1.GetAllInstitutesResponse = context.response
     assert len(res.institutes) == 1
-    then_institute = parse_institute(context)[0]
     institute = res.institutes[0]
-    assert then_institute["institute_id"] == institute.institute_id
-    assert then_institute["institute_name"] == institute.institute_name
+    spec = common.Institute(**(json.loads(context.text)[0]))
+
+    assert spec.institute_id == institute.institute_id
+    assert spec.institute_name == institute.institute_name
 
 @given(u'в базе не содержится информации об институтах')
 def step_impl(context: behave_runner.Context):
     pass
 
-@when(u'Клиент вызывает GetInstituteByName() rpc с institute_name = "ИКНТ"')
+from pydantic import BaseModel
+
+class GetInstituteByNameRequest(BaseModel):
+    institute_name: str
+
+    def to_api(self) -> apiv1.GetInstituteByNameRequest:
+        return apiv1.GetInstituteByNameRequest(institute_name=self.institute_name)
+
+@when(u'Клиент вызывает GetInstituteByName\(\) rpc(?P<anything>.*)')
 @async_run_until_complete
 async def step_impl(context: behave_runner.Context):
     stub: apiv1grpc.DormybobaCoreStub = context.stub
+    spec = GetInstituteByNameRequest(**json.loads(context.text))
+
     await do_rpc(
         context,
         stub.GetInstituteByName,
-        apiv1.GetInstituteByNameRequest(
-            institute_name="ИКНТ",
-        ),
+        spec.to_api()
     )
 
 @then(u'Ответ содержит информацию об институте')
 def step_impl(context: behave_runner.Context):
-    then_institute = parse_institute(context)
     res: apiv1.GetInstituteByNameResponse = context.response
-    assert then_institute["institute_id"] == res.institute.institute_id
-    assert then_institute["institute_name"] == res.institute.institute_name
+    spec = common.Institute(**json.loads(context.text))
+    assert spec.institute_id == res.institute.institute_id
+    assert spec.institute_name == res.institute.institute_name
