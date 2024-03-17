@@ -62,7 +62,14 @@ Feature: User
     Then Сервис отправляет Ответ со статусом INVALID_ARGUMENT
 
   Scenario: Клиент вызывает GetUserById() rpc для существующего пользователя
-    Given в базе есть пользователь "A"
+    Given в базе есть роль "student"
+    """
+    {
+      "role_id": 1,
+      "role_name": "student"
+    }
+    """
+    And в базе есть пользователь "A" с ролью "student"
     """
     {
       "user_id": 3,
