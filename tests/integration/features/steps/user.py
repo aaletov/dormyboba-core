@@ -24,7 +24,7 @@ class UpdateUserRequest(BaseModel):
     def to_api(self) -> apiv1.UpdateUserRequest:
         return apiv1.UpdateUserRequest(role_name=self.role_name)
 
-@when(u'Клиент вызывает UpdateUser() rpc(?P<anything>.*)')
+@when(u'Клиент вызывает UpdateUser\(\) rpc(?P<anything>.*)')
 @async_run_until_complete
 async def step_impl(context: behave_runner.Context):
     stub: apiv1grpc.DormybobaCoreStub = context.stub
@@ -51,7 +51,7 @@ class GetUserByIdRequest(BaseModel):
     def to_api(self) -> apiv1.GetUserByIdRequest:
         return apiv1.GetUserByIdRequest(user_id=self.user_id)
 
-@when(u'Клиент вызывает GetUserById() rpc(?P<anything>.*)')
+@when(u'Клиент вызывает GetUserById\(\) rpc(?P<anything>.*)')
 @async_run_until_complete
 async def step_impl(context: behave_runner.Context):
     stub: apiv1grpc.DormybobaCoreStub = context.stub

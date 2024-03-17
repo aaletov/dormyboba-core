@@ -1,7 +1,7 @@
 import json
 import behave.runner as behave_runner
 from behave.api.async_step import async_run_until_complete
-from behave import given, when, then
+from behave import use_step_matcher, given, when, then
 from sqlalchemy import Engine
 from sqlalchemy.orm import Session
 from google.protobuf.empty_pb2 import Empty
@@ -44,9 +44,11 @@ class GetAcademicTypeByNameRequest(BaseModel):
     def to_api(self) -> apiv1.GetAcademicTypeByNameRequest:
         return apiv1.GetAcademicTypeByNameRequest(type_name=self.type_name)
 
-@when(u'Клиент вызывает GetAcademicTypeByName() rpc с type_name = "Бакалавриат"')
+use_step_matcher("re")
+
+@when(u'Клиент вызывает GetAcademicTypeByName\(\) rpc(?P<anything>.*)')
 @async_run_until_complete
-async def step_impl(context: behave_runner.Context):
+async def step_impl(context: behave_runner.Context, anything: str):
     stub: apiv1grpc.DormybobaCoreStub = context.stub
     spec = GetAcademicTypeByNameRequest(**json.loads(context.text))
     await do_rpc(
