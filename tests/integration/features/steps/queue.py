@@ -57,23 +57,6 @@ def step_impl(context: behave_runner.Context):
         )
         session.add(model_queue)
 
-
-@given(u'в базе есть пользователь с user_id = 4')
-def step_impl(context: behave_runner.Context):
-    common.add_standard_roles(context)
-    engine: Engine = context.engine
-    with Session(engine) as session, session.begin():
-        role = session.scalar(
-            select(model.DormybobaRole)
-            .limit(1)
-        )
-        user = model.DormybobaUser(
-            user_id=4,
-            role=role,
-            registration_complete=False,
-        )
-        session.add(user)
-
 def parse_add_person_to_queue_request(context: behave_runner. Context) -> dict:
     return json.loads(context.text)
 
@@ -125,30 +108,30 @@ def step_impl(context: behave_runner.Context):
     res: apiv1.AddPersonToQueueResponse = context.response
     assert not(res.is_active)
 
-@given(u'в базе есть пользователь с user_id = 4, находящийся в очереди с queue_id = 3')
-def step_impl(context: behave_runner.Context):
-    engine: Engine = context.engine
-    with Session(engine) as session, session.begin():
-        model_queue = session.scalar(
-            select(model.Queue)
-            .where(model.Queue.queue_id == 3)
-        )
-        model_role = session.scalar(
-            select(model.DormybobaRole)
-            .limit(1)
-        )
-        model_user = model.DormybobaUser(
-            user_id=4,
-            role=model_role,
-            registration_complete=False,
-        )
-        session.add(model_user)
-        model_qtu = model.QueueToUser(
-            queue_id=model_queue.queue_id,
-            user_id=model_user.user_id,
-            joined=datetime.datetime.now(),
-        )
-        session.add(model_qtu)
+# @given(u'в базе есть пользователь с user_id = 4, находящийся в очереди с queue_id = 3')
+# def step_impl(context: behave_runner.Context):
+#     engine: Engine = context.engine
+#     with Session(engine) as session, session.begin():
+#         model_queue = session.scalar(
+#             select(model.Queue)
+#             .where(model.Queue.queue_id == 3)
+#         )
+#         model_role = session.scalar(
+#             select(model.DormybobaRole)
+#             .limit(1)
+#         )
+#         model_user = model.DormybobaUser(
+#             user_id=4,
+#             role=model_role,
+#             registration_complete=False,
+#         )
+#         session.add(model_user)
+#         model_qtu = model.QueueToUser(
+#             queue_id=model_queue.queue_id,
+#             user_id=model_user.user_id,
+#             joined=datetime.datetime.now(),
+#         )
+#         session.add(model_qtu)
 
 def parse_remove_person_from_queue_request(context: behave_runner. Context) -> dict:
     return json.loads(context.text)
