@@ -19,20 +19,14 @@ Feature: User
     """
     {
       "user_id": 3,
-      "role": {
-        "role_id": 1,
-        "role_name": "student"
-      }
+      "role_id": 1
     }
     """
     When Клиент вызывает UpdateUser() rpc для пользователя "A" c ролью "council_member"
     """
     {
       "user_id": 3,
-      "role": {
-        "role_id": 2,
-        "role_name": "council_member"
-      }
+      "role_id": 2
     }
     """
     Then Сервис отправляет Ответ со статусом OK
@@ -40,10 +34,7 @@ Feature: User
     """
     {
       "user_id": 3,
-      "role": {
-        "role_id": 2,
-        "role_name": "council_member"
-      }
+      "role_id": 2
     }
     """
 
@@ -53,10 +44,7 @@ Feature: User
     """
     {
       "user_id": 3,
-      "role": {
-        "role_id": 2,
-        "role_name": "council_member"
-      }
+      "role_id": 2
     }
     """
     Then Сервис отправляет Ответ со статусом INVALID_ARGUMENT
@@ -66,10 +54,7 @@ Feature: User
     """
     {
       "user_id": 3,
-      "role": {
-        "role_id": 1,
-        "role_name": "student"
-      }
+      "role_id": 1
     }
     """
     When Клиент вызывает GetUserById() rpc с идентификатором пользователя "A"
@@ -83,10 +68,7 @@ Feature: User
     """
     {
       "user_id": 3,
-      "role": {
-        "role_id": 1,
-        "role_name": "student"
-      }
+      "role_id": 1
     }
     """
 

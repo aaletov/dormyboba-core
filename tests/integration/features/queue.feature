@@ -36,10 +36,7 @@ Feature: Queue
     """
     {
       "user_id": 3,
-      "role": {
-        "role_id": 1,
-        "role_name": "student"
-      }
+      "role_id": 1
     }
     """
     When Клиент вызывает AddPersonToQueue() rpc для очереди "A" и пользователя "B"
@@ -69,20 +66,14 @@ Feature: Queue
     """
     {
       "user_id": 3,
-      "role": {
-        "role_id": 1,
-        "role_name": "student"
-      }
+      "role_id": 1
     }
     """
     And в базе есть пользователь "B" с ролью "student"
     """
     {
       "user_id": 4,
-      "role": {
-        "role_id": 1,
-        "role_name": "student"
-      }
+      "role_id": 1
     }
     """
     And в базе есть очередь "C", активным пользователем в которой является пользователь "A"
@@ -121,10 +112,7 @@ Feature: Queue
     """
     {
       "user_id": 3,
-      "role": {
-        "role_id": 1,
-        "role_name": "student"
-      }
+      "role_id": 1
     }
     """
     And в базе есть очередь "B", активным пользователем в которой является пользователь "A"
@@ -157,10 +145,7 @@ Feature: Queue
     """
     {
       "user_id": 3,
-      "role": {
-        "role_id": 1,
-        "role_name": "student"
-      }
+      "role_id": 1
     }
     """
     And в базе есть очередь "B", активным пользователем в которой является пользователь "A"
