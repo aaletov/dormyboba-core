@@ -40,7 +40,7 @@ Feature: Academic Type
     When Клиент вызывает GetAcademicTypeByName() rpc для названия типа "Бакалавриат"
     """
     {
-      "type_name": "Бакалавриат",
+      "type_name": "Бакалавриат"
     }
     """
     Then Сервис отправляет Ответ со статусом OK
