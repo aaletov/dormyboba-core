@@ -15,8 +15,11 @@ def step_impl(context: behave_runner.Context):
 
 @then(u'Ответ содержит пустой массив в поле "{field}"')
 def step_impl(context: behave_runner.Context, field: str):
-    res: apiv1.GetAllAcademicTypesResponse = context.response
-    assert len(getattr(res, field)) == 0
+    assert len(getattr(context.response, field)) == 0
+
+@then(u'Ответ содержит пустое поле "{field}"')
+def step_impl(context: behave_runner.Context, field: str):
+    assert not context.response.HasField(field)
 
 from pydantic import BaseModel
 
