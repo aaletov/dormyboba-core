@@ -37,7 +37,7 @@ use_step_matcher("re")
 
 @when(u'Клиент вызывает CreateMailing\(\) rpc(?P<anything>.*)')
 @async_run_until_complete
-async def step_impl(context: behave_runner.Context):
+async def step_impl(context: behave_runner.Context, anything: str):
     stub: apiv1grpc.DormybobaCoreStub = context.stub
     spec = Mailing(**json.loads(context.text))
     await do_rpc(

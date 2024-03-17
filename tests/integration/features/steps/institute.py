@@ -17,7 +17,7 @@ use_step_matcher("re")
 
 @when(u'Клиент вызывает GetAllInstitutes\(\) rpc(?P<anything>.*)')
 @async_run_until_complete
-async def step_impl(context: behave_runner.Context):
+async def step_impl(context: behave_runner.Context, anything: str):
     stub: apiv1grpc.DormybobaCoreStub = context.stub
     await do_rpc(
         context,
@@ -49,7 +49,7 @@ class GetInstituteByNameRequest(BaseModel):
 
 @when(u'Клиент вызывает GetInstituteByName\(\) rpc(?P<anything>.*)')
 @async_run_until_complete
-async def step_impl(context: behave_runner.Context):
+async def step_impl(context: behave_runner.Context, anything: str):
     stub: apiv1grpc.DormybobaCoreStub = context.stub
     spec = GetInstituteByNameRequest(**json.loads(context.text))
 
