@@ -61,6 +61,23 @@ def step_impl(context: behave_runner.Context, anything: str):
 
 use_step_matcher("parse")
 
+class AcademicType(BaseModel):
+    type_id: int
+    type_name: str
+
+    def to_model(self) -> model.AcademicType:
+        return model.AcademicType(type_id=self.type_id, type_name=self.type_name)
+
+    def to_api(self) -> apiv1.AcademicType:
+        return apiv1.AcademicType(type_id=self.type_id, type_name=self.type_name)
+
+@given(u'в базе есть тип академ. программы "{academic_type_name}"')
+def step_impl(context: behave_runner.Context, academic_type_name: str):
+    spec = AcademicType(**json.loads(context.text))
+    engine: Engine = context.engine
+    with Session(engine) as session, session.begin():
+        session.add(spec.to_model())
+
 def dt_to_timestamp(dt: datetime.datetime | None) -> Timestamp:
     if dt is None:
         return None
