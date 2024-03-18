@@ -18,7 +18,7 @@ import tests.integration.features.steps.common as common
 from pydantic import BaseModel
 
 class Mailing(BaseModel):
-    mailing_id: Optional[int]
+    mailing_id: Optional[int] = None
     theme: Optional[str] = None
     mailing_text: str
     at: Optional[str] = None

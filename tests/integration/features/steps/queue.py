@@ -23,7 +23,7 @@ class Queue(BaseModel):
     title: str
     open: str
     event_generated: bool
-    active_user_id: Optional[int]
+    active_user_id: Optional[int] = None
 
     def to_api(self) -> apiv1.Queue:
         dt_open = datetime.datetime.strptime(self.open, '%Y-%m-%d %H:%M:%S.%f')
@@ -148,7 +148,7 @@ async def step_impl(context: behave_runner.Context, anything: str):
 
 class PersonCompleteQueueResponse(BaseModel):
     is_queue_empty: bool
-    active_user_id: Optional[int]
+    active_user_id: Optional[int] = None
 
     def to_api(self) -> apiv1.PersonCompleteQueueResponse:
         return apiv1.PersonCompleteQueueResponse(
