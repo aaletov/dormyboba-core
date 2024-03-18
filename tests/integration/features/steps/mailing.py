@@ -52,8 +52,8 @@ async def step_impl(context: behave_runner.Context, anything: str):
 @then(u'Ответ содержит информацию о созданной рассылке')
 def step_impl(context: behave_runner.Context):
     res: apiv1.CreateMailingResponse = context.response
-    spec = Mailing(**json.loads(context.text))
+    api_spec = Mailing(**json.loads(context.text)).to_api()
     assert res.mailing.HasField("mailing_id")
-    assert spec.theme == res.mailing.theme
-    assert spec.mailing_text == res.mailing.mailing_text
-    assert not(spec.at is not None) or (spec.at == res.mailing.at.ToDatetime())
+    assert api_spec.theme == res.mailing.theme
+    assert api_spec.mailing_text == res.mailing.mailing_text
+    assert not(api_spec.at is not None) or (api_spec.at == res.mailing.at)
