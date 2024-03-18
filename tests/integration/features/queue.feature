@@ -49,7 +49,7 @@ Feature: Queue
     """
     {
       "queue_id": 3,
-      "user_id": 4
+      "user_id": 3
     }
     """
     Then Сервис отправляет Ответ со статусом OK
@@ -145,7 +145,7 @@ Feature: Queue
     """
     {
       "queue_id": 3,
-      "user_id": 4
+      "user_id": 3
     }
     """
     Then Сервис отправляет Ответ со статусом OK
