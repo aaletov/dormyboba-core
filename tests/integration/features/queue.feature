@@ -14,7 +14,8 @@ Feature: Queue
     {
       "queue_id": "{queue_id}",
       "title": "Название очереди",
-      "open": "2024-03-02 20:05:25.231189"
+      "open": "2024-03-02 20:05:25.231189",
+      "event_generated": false
     }
     """
 
@@ -22,7 +23,10 @@ Feature: Queue
     Given в базе есть очередь "A"
     """
     {
-      "queue_id": 3
+      "queue_id": 3,
+      "title": "Название очереди",
+      "open": "2024-03-02 20:05:25.231189"
+      "event_generated": true
     }
     """
     And в базе есть роль "student"
@@ -91,6 +95,7 @@ Feature: Queue
       "queue_id": 3,
       "title": "Название очереди",
       "open": "2024-03-02 20:05:25.231189",
+      "event_generated": true,
       "active_user_id": 3
     }
     """
@@ -132,8 +137,9 @@ Feature: Queue
     {
       "queue_id": 3,
       "title": "Название очереди",
-      "open": "2024-03-02 20:05:25.231189"
-      "active_user_id": 3,
+      "open": "2024-03-02 20:05:25.231189",
+      "event_generated": true,
+      "active_user_id": 3
     }
     """
     When Клиент вызывает RemovePersonFromQueue() rpc для пользователя "A" и очереди "B"
@@ -145,7 +151,7 @@ Feature: Queue
     """
     Then Сервис отправляет Ответ со статусом OK
 
-  Scenario: Клиент вызывает PersonCompleteQueueRequest() rpc для пользователя, являющимся активным в данной очереди при отсутствии ожидающих пользователей
+  Scenario: Клиент вызывает PersonCompleteQueue() rpc для пользователя, являющимся активным в данной очереди при отсутствии ожидающих пользователей
     Given в базе есть роль "student"
     """
     {
@@ -169,10 +175,11 @@ Feature: Queue
       "queue_id": 3,
       "title": "Название очереди",
       "open": "2024-03-02 20:05:25.231189"
+      "event_generated": true,
       "active_user_id": 3,
     }
     """
-    When Клиент вызывает PersonCompleteQueueRequest() rpc для пользователя "A" и очереди "C"
+    When Клиент вызывает PersonCompleteQueue() rpc для пользователя "A" и очереди "C"
     """
     {
       "queue_id": 3,
