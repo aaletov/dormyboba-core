@@ -12,7 +12,6 @@ Feature: Queue
     And Ответ содержит информацию об очереди
     """
     {
-      "queue_id": "{queue_id}",
       "title": "Название очереди",
       "open": "2024-03-02 20:05:25.231189",
       "event_generated": false
