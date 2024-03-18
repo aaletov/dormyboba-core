@@ -39,7 +39,7 @@ class Queue(BaseModel):
             queue_id=self.queue_id,
             title=self.title,
             open=dt_open,
-            event_generated=self.event_generated,
+            is_event_generated=self.event_generated,
             active_user_id=self.active_user_id,
         )
 
@@ -71,7 +71,7 @@ def step_impl(context: behave_runner.Context):
     res: apiv1.CreateQueueResponse = context.response
     assert res.queue.HasField("queue_id")
     assert api_spec.title == res.queue.title
-    assert api_spec.open == res.queue.open.ToDatetime()
+    assert api_spec.open == res.queue.open
 
 class AddPersonToQueueRequest(BaseModel):
     queue_id: int

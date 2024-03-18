@@ -173,9 +173,9 @@ Feature: Queue
     {
       "queue_id": 3,
       "title": "Название очереди",
-      "open": "2024-03-02 20:05:25.231189"
+      "open": "2024-03-02 20:05:25.231189",
       "event_generated": true,
-      "active_user_id": 3,
+      "active_user_id": 3
     }
     """
     When Клиент вызывает PersonCompleteQueue() rpc для пользователя "A" и очереди "C"

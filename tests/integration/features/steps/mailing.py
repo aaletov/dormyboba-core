@@ -56,4 +56,4 @@ def step_impl(context: behave_runner.Context):
     assert res.mailing.HasField("mailing_id")
     assert spec.theme == res.mailing.theme
     assert spec.mailing_text == res.mailing.mailing_text
-    assert not(spec.mailing.at is not None) or (spec.mailing.at == res.mailing.at.ToDatetime())
+    assert not(spec.at is not None) or (spec.at == res.mailing.at.ToDatetime())
