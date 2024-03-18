@@ -19,10 +19,10 @@ import tests.integration.features.steps.common as common
 from pydantic import BaseModel
 
 class Queue(BaseModel):
-    queue_id: int
+    queue_id: Optional[int] = None
     title: str
     open: str
-    event_generated: bool
+    event_generated: Optional[bool] = None
     active_user_id: Optional[int] = None
 
     def to_api(self) -> apiv1.Queue:
