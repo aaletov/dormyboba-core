@@ -1,6 +1,7 @@
 from dataclasses import dataclass
 import random
 import base64
+import datetime
 import jwt
 from cryptography.hazmat.primitives import serialization
 
@@ -29,6 +30,7 @@ class TokenConverter:
         once_encoded = jwt.encode({
             "role": token.role,
             "random_id": token.random_id,
+            "exp": datetime.datetime.now() + datetime.timedelta(days=1.0),
         }, key=self.private_key, algorithm="RS256")
 
         return base64.b64encode(once_encoded.encode("utf-8")).decode("utf-8")
